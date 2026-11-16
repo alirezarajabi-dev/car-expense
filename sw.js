@@ -1,5 +1,5 @@
 // Offline support: keeps the app working with no signal (e.g. underground parking).
-const CACHE="car-expense-v12";
+const CACHE="car-expense-v13";
 const RETIRED=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Car Expense Log</title>
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f4ee;color:#142c2b;font:16px/1.6 system-ui,sans-serif;padding:24px;box-sizing:border-box}
 main{max-width:420px;display:flex;flex-direction:column;gap:18px;text-align:center}h1{font-size:20px;margin:0}p{margin:0}.fa{direction:rtl}</style></head>
@@ -13,7 +13,7 @@ self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.
 const keep=(req,res)=>{if(res&&res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put(req,copy))}return res};
 self.addEventListener("fetch",e=>{
   const req=e.request;if(req.method!=="GET")return;const url=new URL(req.url);
-  if(req.mode==="navigate"){e.respondWith(fetch(req).then(r=>{
+  if(req.mode==="navigate"){e.respondWith(fetch(req,{cache:"no-cache"}).then(r=>{
     // Site switched off (GitHub Pages set to None or repository deleted): retire the app on this phone.
     if(r.status===404){e.waitUntil(caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).then(()=>self.registration.unregister()));
       return new Response(RETIRED,{headers:{"content-type":"text/html; charset=utf-8"}})}
