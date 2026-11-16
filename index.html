@@ -25,7 +25,7 @@
   --accent:#a8693c; --accent-fg:#fffdf8;
   --slab:#142c2b; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
   --empty:#9aa8a3; --danger:#b3412e; --ok:#2f7a5c; --overlay:rgba(20,44,43,.45);
-  --work:#fff7d1; --offday:#e9e9e7; --out:#1f4e9c; --paper:#ffffff; --paper-fg:#142c2b; --paper-line:#c9c3b6; --paper-off:#eeebe4;
+  --work:#fff7d1; --offday:#e9e9e7; --out:#1f4e9c; --money:#1a6b4a; --paper:#ffffff; --paper-fg:#142c2b; --paper-line:#c9c3b6; --paper-off:#eeebe4;
   --f-fa:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
   --f-ui:"Manrope","Vazirmatn",system-ui,sans-serif;
   --f-display:"Cormorant Garamond",Georgia,serif;
@@ -35,12 +35,12 @@
   --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
   --accent:#dda77d; --accent-fg:#142c2b;
   --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
-  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}}
+  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --money:#7fd1a8; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
   --accent:#dda77d; --accent-fg:#142c2b;
   --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
-  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}
+  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --money:#7fd1a8; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -136,6 +136,9 @@ h2{font-size:15px;margin:8px 0 0;font-weight:700}
 .day .c.km,.kpi .v,#fuelCalc b{color:var(--out)}
 .day.today{box-shadow:inset 4px 0 0 var(--accent)}
 .day.off{cursor:default;padding-block:6px;background:var(--offday)}
+.offband{background:var(--offday);color:var(--empty);font-size:11.5px;padding:3px 12px;border-bottom:1px solid var(--line)}
+.day .c:not(.km){color:var(--muted)}
+.chip .num{color:var(--money)}
 .day.off .d b{font-size:15px}
 .chip{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-inline-start:4px;color:var(--muted)}
 
@@ -191,7 +194,11 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper td{border-bottom:1px solid var(--paper-line);padding:2px 4px}
 .paper td{background:#fff7d1}
 .paper tr.off td{background:#e9e9e7;color:#8a8f8c}
-.paper td:nth-child(4),.paper tr.tot td,.paper .sum div:nth-child(even){color:#1f4e9c}
+.paper tr.off td{font-size:7px;padding:1px 4px;line-height:1.2}
+.paper td:nth-child(2),.paper td:nth-child(3){color:#3e4846}
+.paper td:nth-child(4){color:#1f4e9c;font-weight:700}.paper td:nth-child(5){color:#1a6b4a;font-weight:700}
+.paper tr.tot td{background:#e9eff8}.paper .sum div:nth-child(even){color:#1a6b4a;font-weight:700}
+.paper .sum .due{background:#1f4e9c;color:#fff!important;padding:4px 6px;border:0}
 .paper tr.tot td{font-weight:700;border-top:2px solid #142c2b}
 .paper .sum{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin-top:10px;margin-inline-start:45%}
 .paper .sum .due{font-family:inherit;font-size:12px;font-weight:700;border-top:2px solid #142c2b;padding-top:3px}
@@ -355,7 +362,7 @@ const t=k=>T[lang][k];
 
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
-const money=n=>(Math.round((+n||0)*100)/100).toFixed(2);
+const money=n=>(Math.round((+n||0)*100)/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 const toNum=v=>{if(v==null||v==="")return null;const n=parseFloat(String(v).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace("٫",".").replace(/[٬,\s]/g,""));return isNaN(n)?null:n};
 const fmtRate=n=>{n=+n||0;return Math.abs(n*100-Math.round(n*100))<1e-9?n.toFixed(2):String(+n.toFixed(4))};
 const fmtInt=n=>Number(n||0).toLocaleString("en-US");
@@ -423,6 +430,8 @@ function render(){
   $("todayBtn").textContent=isThis?t("logToday"):t("logDay");
   let html="";
   for(let i=1;i<=daysIn();i++){
+    if(!isOpen(i)){let j=i;while(j+1<=daysIn()&&!isOpen(j+1))j++;const w1=new Date(ym.y,ym.m,i).getDay(),w2=new Date(ym.y,ym.m,j).getDay();
+      html+=`<li class="offband">${WD[lang][w1]} ${i}${j>i?` – ${WD[lang][w2]} ${j}`:""} · ${t("weekendOff")}</li>`;i=j;continue}
     const d=state.days[i],wd=new Date(ym.y,ym.m,i).getDay(),km=kmOf(d),p=parkOf(d),filled=hasData(d),open=isOpen(i),n=parksOf(d).length;
     const cls=["day",filled?"filled":"empty",open?"":"off",isThis&&i===now.getDate()?"today":""].join(" ");
     const chips=(p?`<span class="chip">${t("parking")} <span class="num">$${money(p)}</span></span>`:"")+(n?`<span class="chip">${t("receipts")(n)}</span>`:"");
@@ -568,11 +577,13 @@ const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) 
 const pl=()=>lang==="fr"?"fr":"en";
 function formRows(L){L=L||PT[pl()];const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
   out.push({i,off:!isOpen(i),label:`${L.wd[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
+function groupRows(rows){const g=[];rows.forEach(r=>{const last=g[g.length-1];if(r.off&&last&&last.off)last.items.push(r);else g.push({off:r.off,items:[r]})});return g}
+const offLabel=(g,L)=>g.items[0].label+(g.items.length>1?" – "+g.items[g.items.length-1].label:"")+" · "+L.weekend;
 function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine+(state.settings.otNote?` (${state.settings.otNote})`:""),"",x.ot]];
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
-  const rows=formRows(L).map(r=>r.off?`<tr class="off"><td>${esc(r.label)}</td><td colspan="5">${L.weekend}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`).join("");
+  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td colspan="6">${esc(offLabel(g,L))}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
   return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>${L.title} · ${MONTHS[k][ym.m]} ${ym.y}</h4>
   <div class="meta"><div><b>${L.emp}:</b> ${esc(s.name)||"________"}</div><div><b>${L.fuel}:</b> $${fmtRate(x.fuel)}</div><div><b>${L.ot}:</b> $${money(x.ot)}</div></div>
   <table><thead><tr><th>${L.date}</th><th>${L.start}</th><th>${L.end}</th><th>${L.km}</th><th>${L.park}</th><th>${L.rec}</th></tr></thead>
@@ -604,28 +615,31 @@ async function buildPdf(withReceipts){
     doc.setTextColor(247,244,238);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
     if(c.f){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(c.f,tx,y+24,o)}cx+=c.w});
   y+=hh;
-  const rows=formRows(L),nOff=rows.filter(r=>r.off).length,nOn=rows.length-nOff;
-  const tableEnd=600,avail=tableEnd-y-20; // 20 = total row
-  const rh=Math.min(19,avail/(nOn+.55*nOff)),rhOff=rh*.55;
-  rows.forEach(r=>{
-    const h=r.off?rhOff:rh;
-    if(r.off)doc.setFillColor(233,233,231);else doc.setFillColor(255,247,209);doc.rect(M,y,W,h,"F");
-    doc.setDrawColor(205,199,188);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
-    let xx=M;
-    if(r.off){font("normal",7,[140,145,142]);doc.text(r.label,xx+6,y+h-2.6);doc.text(L.weekend,M+cols[0].w+6,y+h-2.6)}
-    else{const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)];
-      cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3?"bold":"normal",10,ci===3?OUT:ink);if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w})}
+  const rows=formRows(L),groups=groupRows(rows),nOn=rows.filter(r=>!r.off).length,nBand=groups.filter(g=>g.off).length;
+  const MONEY=[26,107,74],ODO=[62,72,70];
+  const tableEnd=604,avail=tableEnd-y-22;
+  const rh=Math.min(20,(avail-nBand*8)/nOn),bandH=8;
+  groups.forEach(g=>{
+    if(g.off){doc.setFillColor(236,236,234);doc.rect(M,y,W,bandH,"F");font("normal",6.2,[128,133,130]);doc.text(offLabel(g,L),M+6,y+5.8);y+=bandH;return}
+    const r=g.items[0],h=rh;
+    doc.setFillColor(255,248,214);doc.rect(M,y,W,h,"F");
+    doc.setDrawColor(232,222,186);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
+    const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)],colr=[ink,ODO,ODO,OUT,MONEY,grey];
+    let xx=M;cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3||ci===4?"bold":"normal",10,colr[ci]);
+      if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w});
     y+=h;
   });
-  doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);
-  {let xx=M;font("bold",10.5,OUT);[L.total,"","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
-  y+=20;
+  // total band
+  doc.setFillColor(233,239,248);doc.rect(M,y,W,22,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.2);doc.line(M,y,M+W,y);
+  {let xx=M;const tv=[L.total,"","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)],tc=[ink,ink,ink,OUT,MONEY,grey];
+   tv.forEach((v,ci)=>{const c=cols[ci];font("bold",10.5,tc[ci]);if(ci===0)doc.text(v,xx+6,y+14.5);else if(v)doc.text(v,xx+c.w-6,y+14.5,{align:"right"});xx+=c.w})}
+  y+=22;
   // summary (right half)
   y+=18;const sx=M+W*.40;
-  sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,OUT);doc.text("$"+money(v),M+W,y,{align:"right"});
+  sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,[26,107,74]);doc.text("$"+money(v),M+W,y,{align:"right"});
     if(f){font("normal",8.5,grey);doc.text(f,sx,y+11);y+=25}else y+=16});
-  doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(sx,y-8,M+W,y-8);
-  font("bold",13,OUT);doc.text(L.due,sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
+  doc.setFillColor(...OUT);doc.roundedRect(sx-8,y-6,M+W-sx+8,28,4,4,"F");
+  font("bold",13,[255,255,255]);doc.text(L.due,sx+2,y+12.5);font("bold",15,[255,255,255]);doc.text("$"+money(x.due),M+W-8,y+13,{align:"right"});
   // footer
   try{doc.addImage(BK_LOGO,"PNG",M,758,14,14)}catch(e){}
   font("normal",7.5,grey);doc.text(`${L.dev} Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
