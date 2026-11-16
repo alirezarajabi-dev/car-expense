@@ -25,7 +25,7 @@
   --accent:#a8693c; --accent-fg:#fffdf8;
   --slab:#142c2b; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
   --empty:#9aa8a3; --danger:#b3412e; --ok:#2f7a5c; --overlay:rgba(20,44,43,.45);
-  --paper:#ffffff; --paper-fg:#142c2b; --paper-line:#c9c3b6; --paper-off:#eeebe4;
+  --work:#fff7d1; --offday:#e9e9e7; --out:#1f4e9c; --paper:#ffffff; --paper-fg:#142c2b; --paper-line:#c9c3b6; --paper-off:#eeebe4;
   --f-fa:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
   --f-ui:"Manrope","Vazirmatn",system-ui,sans-serif;
   --f-display:"Cormorant Garamond",Georgia,serif;
@@ -35,12 +35,12 @@
   --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
   --accent:#dda77d; --accent-fg:#142c2b;
   --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
-  --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}}
+  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
   --accent:#dda77d; --accent-fg:#142c2b;
   --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
-  --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}
+  --work:#2a3524; --offday:#1a2827; --out:#8fb4ff; --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -132,8 +132,10 @@ h2{font-size:15px;margin:8px 0 0;font-weight:700}
 .day .r{text-align:end;font-size:13px;white-space:nowrap}
 .day .r b{font-family:var(--f-ui);font-size:16px;color:var(--fg)}
 .day.empty .d b,.day.empty .odo{color:var(--empty)}
-.day.today{background:color-mix(in srgb,var(--accent) 9%,transparent)}
-.day.off{cursor:default;padding-block:6px;background:repeating-linear-gradient(135deg,transparent 0 8px,color-mix(in srgb,var(--line) 55%,transparent) 8px 9px)}
+.day:not(.off){background:var(--work)}
+.day .c.km,.kpi .v,#fuelCalc b{color:var(--out)}
+.day.today{box-shadow:inset 4px 0 0 var(--accent)}
+.day.off{cursor:default;padding-block:6px;background:var(--offday)}
 .day.off .d b{font-size:15px}
 .chip{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-inline-start:4px;color:var(--muted)}
 
@@ -187,7 +189,9 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper th{background:#142c2b;color:#f7f4ee;font-weight:600;padding:3px 4px;text-align:left;font-size:9px}
 .paper th small{display:block;font-weight:400;opacity:.8}
 .paper td{border-bottom:1px solid var(--paper-line);padding:2px 4px}
-.paper tr.off td{background:var(--paper-off);color:#8a8f8c}
+.paper td{background:#fff7d1}
+.paper tr.off td{background:#e9e9e7;color:#8a8f8c}
+.paper td:nth-child(4),.paper tr.tot td,.paper .sum div:nth-child(even){color:#1f4e9c}
 .paper tr.tot td{font-weight:700;border-top:2px solid #142c2b}
 .paper .sum{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin-top:10px;margin-inline-start:45%}
 .paper .sum .due{font-family:inherit;font-size:12px;font-weight:700;border-top:2px solid #142c2b;padding-top:3px}
@@ -573,7 +577,7 @@ async function imgData(src){const r=await fetch(src);const b=await r.blob();cons
 async function buildPdf(withReceipts){
   // US/Canada Letter: 8.5 x 11 in = 612 x 792 pt, 0.5 in margins
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"letter",orientation:"portrait"});
-  const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[20,44,43],grey=[95,104,100];
+  const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[20,44,43],grey=[95,104,100],OUT=[31,78,156];
   const font=(w,sz,c)=>{doc.setFont("helvetica",w);doc.setFontSize(sz);doc.setTextColor(...(c||ink))};
   let y=44;
   if(s.company){font("bold",11);doc.text(s.company,M,y);y+=20}
@@ -599,23 +603,23 @@ async function buildPdf(withReceipts){
   const rh=Math.min(19,avail/(nOn+.55*nOff)),rhOff=rh*.55;
   rows.forEach(r=>{
     const h=r.off?rhOff:rh;
-    if(r.off){doc.setFillColor(236,233,226);doc.rect(M,y,W,h,"F")}
+    if(r.off)doc.setFillColor(233,233,231);else doc.setFillColor(255,247,209);doc.rect(M,y,W,h,"F");
     doc.setDrawColor(205,199,188);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
     let xx=M;
     if(r.off){font("normal",7,[140,145,142]);doc.text(r.label,xx+6,y+h-2.6);doc.text("Weekend / Fin de semaine",M+cols[0].w+6,y+h-2.6)}
     else{const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)];
-      cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3?"bold":"normal",10);if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w})}
+      cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3?"bold":"normal",10,ci===3?OUT:ink);if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w})}
     y+=h;
   });
   doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);
-  {let xx=M;font("bold",10.5);["TOTAL","","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
+  {let xx=M;font("bold",10.5,OUT);["TOTAL","","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
   y+=20;
   // summary (right half)
   y+=18;const sx=M+W*.40;
-  sumLines(x).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5);doc.text("$"+money(v),M+W,y,{align:"right"});
+  sumLines(x).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,OUT);doc.text("$"+money(v),M+W,y,{align:"right"});
     if(f){font("normal",8.5,grey);doc.text(f,sx,y+11);y+=25}else y+=16});
   doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(sx,y-8,M+W,y-8);
-  font("bold",13);doc.text("AMOUNT DUE / MONTANT DÛ",sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
+  font("bold",13,OUT);doc.text("AMOUNT DUE / MONTANT DÛ",sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
   // footer
   try{doc.addImage(BK_LOGO,"PNG",M,758,14,14)}catch(e){}
   font("normal",7.5,grey);doc.text(`Developed by Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
