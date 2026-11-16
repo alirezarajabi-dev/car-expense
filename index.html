@@ -150,7 +150,8 @@ h2{font-size:15px;margin:8px 0 0;font-weight:700}
 .day.today{box-shadow:inset 4px 0 0 var(--accent)}
 .day.off{cursor:default;padding-block:6px;background:var(--offday)}
 .offband{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;background:var(--offday);color:var(--muted);font-size:12px;line-height:1.3;padding:5px 12px;border-bottom:1px solid var(--line)}
-.offband .od{font-family:var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap}
+.offband .od{font-family:var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap;display:grid;grid-template-columns:30px 18px}
+.offband .od span:last-child{text-align:right}
 button.offband{width:100%;text-align:start;border:0;border-bottom:1px solid var(--line);font-family:inherit;cursor:pointer}
 .day .c:not(.km){color:var(--muted)}
 .chip .num{color:var(--money)}
@@ -209,6 +210,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper td{border-bottom:1px solid var(--paper-line);padding:2px 4px}
 .paper td{background:#fff7d1}
 .paper tr.off td{background:#e9e9e7;color:#8a8f8c}
+.paper .wdn{display:inline-block;width:20px}.paper .dn{display:inline-block;width:12px;text-align:right}
 .paper tr.off td{font-size:7px;padding:1px 4px;line-height:1.2}
 .paper td:nth-child(2),.paper td:nth-child(3){color:#3e4846}
 .paper td:nth-child(4){color:#1f4e9c;font-weight:700}.paper td:nth-child(5){color:#1a6b4a;font-weight:700}
@@ -453,9 +455,9 @@ function render(){
   $("todayBtn").textContent=isThis?t("logToday"):t("logDay");
   let html="";
   for(let i=1;i<=daysIn();i++){
-    if(isOffDay(i)){html+=`<li><button class="offband marked" data-day="${i}"><span class="od">${PT[pl()].wd[new Date(ym.y,ym.m,i).getDay()]} ${i}</span><span class="ol">${t("noTravel")}</span></button></li>`;continue}
+    if(isOffDay(i)){html+=`<li><button class="offband marked" data-day="${i}"><span class="od"><span>${PT[pl()].wd[new Date(ym.y,ym.m,i).getDay()]}</span><span>${i}</span></span><span class="ol">${t("noTravel")}</span></button></li>`;continue}
     if(!isOpen(i)){let j=i;const w1=new Date(ym.y,ym.m,i).getDay(),w2=new Date(ym.y,ym.m,j).getDay();
-      html+=`<li class="offband"><span class="od">${PT[pl()].wd[w1]} ${i}</span><span class="ol">${t("weekendOff")}</span></li>`;i=j;continue}
+      html+=`<li class="offband"><span class="od"><span>${PT[pl()].wd[w1]}</span><span>${i}</span></span><span class="ol">${t("weekendOff")}</span></li>`;i=j;continue}
     const d=state.days[i],wd=new Date(ym.y,ym.m,i).getDay(),km=kmOf(d),p=parkOf(d),filled=hasData(d),open=isOpen(i),n=parksOf(d).length;
     const cls=["day",filled?"filled":"empty",open?"":"off",isThis&&i===now.getDate()?"today":""].join(" ");
     const chips=(p?`<span class="chip">${t("parking")} <span class="num">$${money(p)}</span></span>`:"")+(n?`<span class="chip">${t("receipts")(n)}</span>`:"");
@@ -610,14 +612,14 @@ const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) 
   kmLine:"Kilomètres au travail",parkLine:"Total pour le stationnement",phone:"Autre (téléphone)",lease:"Location (leasing)",otLine:"Montant additionnel",due:"MONTANT DÛ",receipt:"Reçu de stationnement",dev:"Développé par",wd:["dim","lun","mar","mer","jeu","ven","sam"]}};
 const pl=()=>lang==="fr"?"fr":"en";
 function formRows(L){L=L||PT[pl()];const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
-  out.push({i,off:!isOpen(i)||isOffDay(i),reason:isOffDay(i)?"notravel":"weekend",label:`${L.wd[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
+  out.push({i,off:!isOpen(i)||isOffDay(i),reason:isOffDay(i)?"notravel":"weekend",label:`${L.wd[wd]} ${pad(i)}`,wdn:L.wd[wd],dn:pad(i),start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
 function groupRows(rows){const g=[];rows.forEach(r=>{const last=g[g.length-1];if(false)last.items.push(r);else g.push({off:r.off,items:[r]})});return g}
 const offLabel=(g,L)=>g.items[0].label+" · "+L[g.items[0].reason];
 function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine+(state.settings.otNote?` (${state.settings.otNote})`:""),"",x.ot]];
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
-  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td>${esc(r.label)}</td><td colspan="5">${L[r.reason]}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
+  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td><span class="wdn">${r.wdn}</span><span class="dn">${r.dn}</span></td><td colspan="5">${L[r.reason]}</td></tr>`:`<tr><td><span class="wdn">${r.wdn}</span><span class="dn">${r.dn}</span></td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
   return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>${L.title} · ${MONTHS[k][ym.m]} ${ym.y}</h4>
   <div class="meta"><div><b>${L.emp}:</b> ${esc(s.name)||"________"}</div><div><b>${L.fuel}:</b> $${fmtRate(x.fuel)}</div><div><b>${L.ot}:</b> $${money(x.ot)}</div></div>
   <table><thead><tr><th>${L.date}</th><th>${L.start}</th><th>${L.end}</th><th>${L.km}</th><th>${L.park}</th><th>${L.rec}</th></tr></thead>
@@ -654,13 +656,13 @@ async function buildPdf(withReceipts){
   const tableEnd=604,avail=tableEnd-y-22;
   const bandH=9.5,rh=Math.min(20,(avail-nBand*bandH)/nOn),fs=rh<15?9.5:10;
   groups.forEach(g=>{
-    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y,M+W,y);font("normal",7.5,[85,90,88]);{const r0=g.items[0];doc.text(r0.label,M+6,y+7);doc.text(L[r0.reason],M+cols[0].w+6,y+7)}y+=bandH;return}
+    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y,M+W,y);font("normal",7.5,[85,90,88]);{const r0=g.items[0];doc.text(r0.wdn,M+6,y+7);doc.text(r0.dn,M+46,y+7,{align:"right"});doc.text(L[r0.reason],M+cols[0].w+6,y+7)}y+=bandH;return}
     const r=g.items[0],h=rh;
     doc.setFillColor(255,250,226);doc.rect(M,y,W,h,"F");
     doc.setDrawColor(170,172,171);doc.setLineWidth(.5);doc.line(M,y,M+W,y);
     const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)],colr=[ink,ODO,ODO,OUT,MONEY,grey];
     let xx=M;cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3||ci===4?"bold":"normal",fs,colr[ci]);
-      if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w});
+      if(ci===0){doc.text(r.wdn,xx+6,y+h/2+3.5);doc.text(r.dn,xx+46,y+h/2+3.5,{align:"right"})}else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w});
     y+=h;
   });
   // total band
