@@ -786,7 +786,7 @@ let deferredPrompt=null;
 const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
 const UA=navigator.userAgent,IOS=/iPhone|iPad|iPod/i.test(UA)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),ANDROID=/Android/i.test(UA);
 const INAPP=/FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|LinkedInApp|GSA\/|; wv\)/i.test(UA)||(IOS&&!/Safari\//.test(UA));
-function showInstall(){if(standalone)return;let off=false;try{off=localStorage.getItem("carlog:installHide")==="1"}catch(e){}if(off)return;
+function showInstall(){if(standalone)return;if(location.hash==="#install"){try{localStorage.removeItem("carlog:installHide")}catch(e){}}let off=false;try{off=localStorage.getItem("carlog:installHide")==="1"}catch(e){}if(off)return;
   const kind=IOS?(INAPP?"iosInApp":"iosSafari"):ANDROID?(INAPP?"androidInApp":deferredPrompt?"androidPrompt":"android"):(deferredPrompt?"androidPrompt":"android");
   $("installSteps").innerHTML=t(kind).map(x=>`<li><span>${x}</span></li>`).join("");
   $("installFoot").textContent=kind==="iosSafari"?t("iosFoot"):kind==="android"?t("androidFoot"):"";
