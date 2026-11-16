@@ -189,7 +189,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper h4{margin:0 0 6px;font-size:14px}
 .paper .meta{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;margin-bottom:8px}
 .paper table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.paper th{background:#142c2b;color:#f7f4ee;font-weight:600;padding:3px 4px;text-align:left;font-size:9px}
+.paper th{background:#e2e5e7;color:#111817;border-top:1.5px solid #111817;border-bottom:1.5px solid #111817;font-weight:600;padding:3px 4px;text-align:left;font-size:9px}
 .paper th small{display:block;font-weight:400;opacity:.8}
 .paper td{border-bottom:1px solid var(--paper-line);padding:2px 4px}
 .paper td{background:#fff7d1}
@@ -198,7 +198,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper td:nth-child(2),.paper td:nth-child(3){color:#3e4846}
 .paper td:nth-child(4){color:#1f4e9c;font-weight:700}.paper td:nth-child(5){color:#1a6b4a;font-weight:700}
 .paper tr.tot td{background:#e9eff8}.paper .sum div:nth-child(even){color:#1a6b4a;font-weight:700}
-.paper .sum .due{background:#1f4e9c;color:#fff!important;padding:4px 6px;border:0}
+.paper .sum .due{background:#ecf0f6;color:#123480!important;padding:4px 6px;border:1.5px solid #123480}
 .paper tr.tot td{font-weight:700;border-top:2px solid #142c2b}
 .paper .sum{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin-top:10px;margin-inline-start:45%}
 .paper .sum .due{font-family:inherit;font-size:12px;font-weight:700;border-top:2px solid #142c2b;padding-top:3px}
@@ -594,7 +594,7 @@ async function imgData(src){const r=await fetch(src);const b=await r.blob();cons
 async function buildPdf(withReceipts){
   // US/Canada Letter: 8.5 x 11 in = 612 x 792 pt, 0.5 in margins
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"letter",orientation:"portrait"});
-  const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[20,44,43],grey=[95,104,100],OUT=[31,78,156];
+  const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[17,24,23],grey=[70,76,74],OUT=[18,52,128];
   const font=(w,sz,c)=>{doc.setFont("helvetica",w);doc.setFontSize(sz);doc.setTextColor(...(c||ink))};
   const k=pl(),L=PT[k];
   let y=44;
@@ -602,7 +602,7 @@ async function buildPdf(withReceipts){
   font("bold",18);doc.text(L.title,M,y);
   font("bold",13);doc.text(`${MONTHS[k][ym.m]} ${ym.y}`,M+W,y,{align:"right"});
   // details box
-  y+=12;const bh=42;doc.setDrawColor(190,184,172);doc.setLineWidth(.7);doc.rect(M,y,W,bh);
+  y+=12;const bh=42;doc.setDrawColor(120,124,122);doc.setLineWidth(.8);doc.rect(M,y,W,bh);
   const cell=(cx,lab,val)=>{font("normal",8.5,grey);doc.text(lab,cx,y+15);font("bold",12);doc.text(val,cx,y+32)};
   cell(M+10,L.emp,s.name||"");
   cell(M+W*.47,L.fuel,"$"+fmtRate(x.fuel));
@@ -610,36 +610,36 @@ async function buildPdf(withReceipts){
   y+=bh+12;
   // table
   const cols=[{h:L.date,f:"",w:86},{h:L.start,f:"",w:108},{h:L.end,f:"",w:104},{h:L.km,f:"",w:120},{h:L.park,f:"",w:70},{h:L.rec,f:"",w:W-488}];
-  const hh=30;doc.setFillColor(...ink);doc.rect(M,y,W,hh,"F");
+  const hh=30;doc.setFillColor(226,229,231);doc.rect(M,y,W,hh,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);doc.line(M,y+hh,M+W,y+hh);
   let cx=M;cols.forEach((c,ci)=>{const right=ci>0;const tx=right?cx+c.w-6:cx+6;const o=right?{align:"right"}:{};
-    doc.setTextColor(247,244,238);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
+    doc.setTextColor(...ink);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
     if(c.f){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(c.f,tx,y+24,o)}cx+=c.w});
   y+=hh;
   const rows=formRows(L),groups=groupRows(rows),nOn=rows.filter(r=>!r.off).length,nBand=groups.filter(g=>g.off).length;
-  const MONEY=[26,107,74],ODO=[62,72,70];
+  const MONEY=[12,88,56],ODO=[30,36,35];
   const tableEnd=604,avail=tableEnd-y-22;
-  const rh=Math.min(20,(avail-nBand*8)/nOn),bandH=8;
+  const bandH=10,rh=Math.min(20,(avail-nBand*bandH)/nOn);
   groups.forEach(g=>{
-    if(g.off){doc.setFillColor(236,236,234);doc.rect(M,y,W,bandH,"F");font("normal",6.2,[128,133,130]);doc.text(offLabel(g,L),M+6,y+5.8);y+=bandH;return}
+    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y+bandH,M+W,y+bandH);font("normal",7.5,[85,90,88]);doc.text(offLabel(g,L),M+6,y+7.4);y+=bandH;return}
     const r=g.items[0],h=rh;
-    doc.setFillColor(255,248,214);doc.rect(M,y,W,h,"F");
-    doc.setDrawColor(232,222,186);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
+    doc.setFillColor(255,250,226);doc.rect(M,y,W,h,"F");
+    doc.setDrawColor(170,172,171);doc.setLineWidth(.5);doc.line(M,y,M+W,y);
     const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)],colr=[ink,ODO,ODO,OUT,MONEY,grey];
     let xx=M;cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3||ci===4?"bold":"normal",10,colr[ci]);
       if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w});
     y+=h;
   });
   // total band
-  doc.setFillColor(233,239,248);doc.rect(M,y,W,22,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.2);doc.line(M,y,M+W,y);
+  doc.setFillColor(236,240,246);doc.rect(M,y,W,22,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);doc.line(M,y+22,M+W,y+22);
   {let xx=M;const tv=[L.total,"","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)],tc=[ink,ink,ink,OUT,MONEY,grey];
    tv.forEach((v,ci)=>{const c=cols[ci];font("bold",10.5,tc[ci]);if(ci===0)doc.text(v,xx+6,y+14.5);else if(v)doc.text(v,xx+c.w-6,y+14.5,{align:"right"});xx+=c.w})}
   y+=22;
   // summary (right half)
   y+=18;const sx=M+W*.40;
-  sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,[26,107,74]);doc.text("$"+money(v),M+W,y,{align:"right"});
+  sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,[12,88,56]);doc.text("$"+money(v),M+W,y,{align:"right"});
     if(f){font("normal",8.5,grey);doc.text(f,sx,y+11);y+=25}else y+=16});
-  doc.setFillColor(...OUT);doc.roundedRect(sx-8,y-6,M+W-sx+8,28,4,4,"F");
-  font("bold",13,[255,255,255]);doc.text(L.due,sx+2,y+12.5);font("bold",15,[255,255,255]);doc.text("$"+money(x.due),M+W-8,y+13,{align:"right"});
+  doc.setFillColor(236,240,246);doc.setDrawColor(...OUT);doc.setLineWidth(1.6);doc.roundedRect(sx-8,y-6,M+W-sx+8,28,3,3,"FD");
+  font("bold",13,OUT);doc.text(L.due,sx+2,y+12.5);font("bold",15,OUT);doc.text("$"+money(x.due),M+W-8,y+13,{align:"right"});
   // footer
   try{doc.addImage(BK_LOGO,"PNG",M,758,14,14)}catch(e){}
   font("normal",7.5,grey);doc.text(`${L.dev} Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
