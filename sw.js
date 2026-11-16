@@ -1,5 +1,5 @@
 // Offline support: keeps the app working with no signal (e.g. underground parking).
-const CACHE="car-expense-v15";
+const CACHE="car-expense-v16";
 const RETIRED=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Car Expense Log</title>
 <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f4ee;color:#142c2b;font:16px/1.6 system-ui,sans-serif;padding:24px;box-sizing:border-box}
 main{max-width:420px;display:flex;flex-direction:column;gap:18px;text-align:center}h1{font-size:20px;margin:0}p{margin:0}.fa{direction:rtl}</style></head>
