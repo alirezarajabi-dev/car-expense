@@ -444,7 +444,7 @@ function render(){
   $("todayBtn").textContent=isThis?t("logToday"):t("logDay");
   let html="";
   for(let i=1;i<=daysIn();i++){
-    if(!isOpen(i)){let j=i;while(j+1<=daysIn()&&!isOpen(j+1))j++;const w1=new Date(ym.y,ym.m,i).getDay(),w2=new Date(ym.y,ym.m,j).getDay();
+    if(!isOpen(i)){let j=i;const w1=new Date(ym.y,ym.m,i).getDay(),w2=new Date(ym.y,ym.m,j).getDay();
       html+=`<li class="offband">${WD[lang][w1]} ${i}${j>i?` – ${WD[lang][w2]} ${j}`:""} · ${t("weekendOff")}</li>`;i=j;continue}
     const d=state.days[i],wd=new Date(ym.y,ym.m,i).getDay(),km=kmOf(d),p=parkOf(d),filled=hasData(d),open=isOpen(i),n=parksOf(d).length;
     const cls=["day",filled?"filled":"empty",open?"":"off",isThis&&i===now.getDate()?"today":""].join(" ");
@@ -591,7 +591,7 @@ const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) 
 const pl=()=>lang==="fr"?"fr":"en";
 function formRows(L){L=L||PT[pl()];const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
   out.push({i,off:!isOpen(i),label:`${L.wd[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
-function groupRows(rows){const g=[];rows.forEach(r=>{const last=g[g.length-1];if(r.off&&last&&last.off)last.items.push(r);else g.push({off:r.off,items:[r]})});return g}
+function groupRows(rows){const g=[];rows.forEach(r=>{const last=g[g.length-1];if(false)last.items.push(r);else g.push({off:r.off,items:[r]})});return g}
 const offLabel=(g,L)=>g.items[0].label+(g.items.length>1?" – "+g.items[g.items.length-1].label:"")+" · "+L.weekend;
 function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine+(state.settings.otNote?` (${state.settings.otNote})`:""),"",x.ot]];
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
@@ -632,14 +632,14 @@ async function buildPdf(withReceipts){
   const rows=formRows(L),groups=groupRows(rows),nOn=rows.filter(r=>!r.off).length,nBand=groups.filter(g=>g.off).length;
   const MONEY=[12,88,56],ODO=[30,36,35];
   const tableEnd=604,avail=tableEnd-y-22;
-  const bandH=10,rh=Math.min(20,(avail-nBand*bandH)/nOn);
+  const bandH=9.5,rh=Math.min(20,(avail-nBand*bandH)/nOn),fs=rh<15?9.5:10;
   groups.forEach(g=>{
-    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y+bandH,M+W,y+bandH);font("normal",7.5,[85,90,88]);doc.text(offLabel(g,L),M+6,y+7.4);y+=bandH;return}
+    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y,M+W,y);font("normal",7.5,[85,90,88]);doc.text(offLabel(g,L),M+6,y+7);y+=bandH;return}
     const r=g.items[0],h=rh;
     doc.setFillColor(255,250,226);doc.rect(M,y,W,h,"F");
     doc.setDrawColor(170,172,171);doc.setLineWidth(.5);doc.line(M,y,M+W,y);
     const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)],colr=[ink,ODO,ODO,OUT,MONEY,grey];
-    let xx=M;cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3||ci===4?"bold":"normal",10,colr[ci]);
+    let xx=M;cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3||ci===4?"bold":"normal",fs,colr[ci]);
       if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w});
     y+=h;
   });
