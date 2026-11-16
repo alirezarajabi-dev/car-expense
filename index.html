@@ -242,6 +242,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
       <label class="f"><span data-t="sFuel"></span><span class="money-in"><span>$</span><input id="sFuel" inputmode="decimal" placeholder="21.45"></span></label>
       <label class="f"><span data-t="sOt"></span><span class="money-in"><span>$</span><input id="sOt" inputmode="decimal" placeholder="0.00"></span></label>
     </div>
+    <label class="f"><span data-t="sOtNote"></span><input class="txt" id="sOtNote" data-tp="otNotePh"></label>
     <div class="calcline" id="fuelCalc"></div>
   </section>
 
@@ -303,10 +304,10 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 // ---------- language ----------
 const T={
 en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",restored:"Backup restored",restore:"Restore backup",backup:"Save backup",erased:"All data erased",eraseQ:"This deletes every month, every receipt photo and your settings from this phone. Save a backup first if you may need them.",eraseAll:"Erase everything on this phone",backupNote:"Your log is saved on this phone only. Save a backup file now and then (Files, Drive or email) to keep it safe or move it to a new phone.",backupTitle:"Backup",installLater:"Not now",installBtn:"Install",installAndroid:"In Chrome, tap ⋮ then “Install app” or “Add to Home screen”.",installIos:"In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”.",installTitle:"Install this app on your phone",clearTitle:"Clear data",clearMonth:"Clear this month",clearMonthQ:"Clear all days, parking receipts, fuel price and overtime for {m}? Your name, company, phone and lease stay.",monthCleared:"Month cleared",detailsTitle:"Form details",namePh:"First and last name",coPh:"e.g. the company you work for",brandSub:"Car Expense Log",sCompany:"Company name",devBy:"Developed by",loading:"Opening your log…",savedAcct:"Saved to your account · on all your devices",saving:"Saving…",saved:"Saved",saveErr:"Not saved. Check your connection; retrying.",localOnly:"Saved on this phone",
- dueLabel:"Amount due this month",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Overtime",total:"Total",
+ dueLabel:"Amount due this month",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Additional amount",total:"Total",
  fuelHint:"Fuel price for this month isn't entered yet. Enter it in the box below.",
  kpiKm:"Work km",kpiDays:"Days logged",kpiPark:"Parking",logToday:"Log today",logDay:"Log a day",printBtn:"Print form (PDF)",csvBtn:"Export CSV",copyBtn:"Copy summary",
- settings:"Month settings",sName:"Employee name",sFuel:"Fuel price per 100 km",monthlyTitle:"Month-end amounts",monthlyNote:"The office gives these at the end of each month.",sOt:"Overtime",sPhone:"Phone, fixed ($)",sLease:"Car lease, fixed ($)",
+ settings:"Month settings",sName:"Employee name",sFuel:"Fuel price per 100 km",monthlyTitle:"Month-end amounts",monthlyNote:"The office gives these at the end of each month.",sOt:"Additional amount",sOtNote:"What is it for? (optional)",otNotePh:"e.g. overtime, bonus",sPhone:"Phone, fixed ($)",sLease:"Car lease, fixed ($)",
  sNote:"Phone and lease carry over to the next month.",sWe:"Open Saturdays and Sundays (if you worked a weekend)",
  extrasNote:"Other amounts (optional)",addExtra:"+ Add amount",extraPh:"Label",other:"Other",days:"Days of the month",notLogged:"Not logged",weekendOff:"Weekend · off",
  receipts:n=>`${n} receipt${n===1?"":"s"}`,start:"Start odometer",end:"End odometer",kmToday:"Work km today",dist:"Distance (km)",dayCol:"Day",errOdo:"End odometer must be higher than start.",
@@ -317,10 +318,10 @@ en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",
  printTitle:"Print preview",downloadPdf:"Download PDF",includeRec:"Attach receipt photos to the PDF",pdfMaking:"Building PDF…",pdfFail:"PDF couldn't be built: ",
  printHint:"Tap Download PDF, then choose Print, or save it to Files.",pdfNoLib:"The PDF tool didn't load. Check your connection and reopen the page.",noDownloads:"Downloads aren't available in this view. Open the page in a browser while signed in.",amt:"Amount",remove:"Remove"},
 fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegarde du journal.",restored:"Sauvegarde restaurée",restore:"Restaurer une sauvegarde",backup:"Enregistrer une sauvegarde",erased:"Toutes les données sont effacées",eraseQ:"Cela supprime tous les mois, toutes les photos de reçus et vos paramètres de ce téléphone. Enregistrez d'abord une sauvegarde si vous pourriez en avoir besoin.",eraseAll:"Tout effacer sur ce téléphone",backupNote:"Votre journal est enregistré sur ce téléphone seulement. Enregistrez une sauvegarde de temps en temps (Fichiers, Drive ou courriel) pour la protéger ou la transférer sur un nouveau téléphone.",backupTitle:"Sauvegarde",installLater:"Plus tard",installBtn:"Installer",installAndroid:"Dans Chrome, touchez ⋮ puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».",installIos:"Dans Safari, touchez Partager (carré avec une flèche), puis « Sur l'écran d'accueil ».",installTitle:"Installer l'application sur votre téléphone",clearTitle:"Effacer des données",clearMonth:"Effacer ce mois",clearMonthQ:"Effacer toutes les journées, les reçus de stationnement, le prix de l'essence et le temps supplémentaire de {m}? Votre nom, l'entreprise, le téléphone et la location sont conservés.",monthCleared:"Mois effacé",detailsTitle:"Renseignements du formulaire",namePh:"Prénom et nom",coPh:"ex. l'entreprise où vous travaillez",brandSub:"Journal des dépenses automobile",sCompany:"Nom de l'entreprise",devBy:"Développé par",loading:"Ouverture du journal…",savedAcct:"Enregistré dans votre compte · sur tous vos appareils",saving:"Enregistrement…",saved:"Enregistré",saveErr:"Non enregistré. Vérifiez la connexion; nouvel essai.",localOnly:"Enregistré sur ce téléphone",
- dueLabel:"Montant dû ce mois-ci",fuel:"Essence",parking:"Stationnement",phone:"Téléphone",lease:"Location (leasing)",ot:"Temps supplémentaire",total:"Total",
+ dueLabel:"Montant dû ce mois-ci",fuel:"Essence",parking:"Stationnement",phone:"Téléphone",lease:"Location (leasing)",ot:"Montant additionnel",total:"Total",
  fuelHint:"Le prix de l'essence du mois n'est pas encore saisi. Entrez-le dans la case ci-dessous.",
  kpiKm:"Km travail",kpiDays:"Jours saisis",kpiPark:"Stationnement",logToday:"Saisir aujourd'hui",logDay:"Saisir une journée",printBtn:"Imprimer le formulaire (PDF)",csvBtn:"Exporter CSV",copyBtn:"Copier le résumé",
- settings:"Paramètres du mois",sName:"Nom de l'employé",sFuel:"Prix de l'essence par 100 km",monthlyTitle:"Montants de fin de mois",monthlyNote:"Le bureau les communique à la fin de chaque mois.",sOt:"Temps supplémentaire",sPhone:"Téléphone, fixe ($)",sLease:"Location auto, fixe ($)",
+ settings:"Paramètres du mois",sName:"Nom de l'employé",sFuel:"Prix de l'essence par 100 km",monthlyTitle:"Montants de fin de mois",monthlyNote:"Le bureau les communique à la fin de chaque mois.",sOt:"Montant additionnel",sOtNote:"Pour quoi? (facultatif)",otNotePh:"ex. temps supplémentaire, prime",sPhone:"Téléphone, fixe ($)",sLease:"Location auto, fixe ($)",
  sNote:"Téléphone et location sont reportés au mois suivant.",sWe:"Ouvrir samedi et dimanche (si vous avez travaillé la fin de semaine)",
  extrasNote:"Autres montants (facultatif)",addExtra:"+ Ajouter un montant",extraPh:"Libellé",other:"Autre",days:"Jours du mois",notLogged:"Non saisi",weekendOff:"Fin de semaine · congé",
  receipts:n=>`${n} reçu${n>1?"s":""}`,start:"Odomètre de départ",end:"Odomètre final",kmToday:"Km travail aujourd'hui",dist:"Distance parcourue",dayCol:"Jour",errOdo:"L'odomètre final doit être plus élevé que celui de départ.",
@@ -331,10 +332,10 @@ fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegard
  printTitle:"Aperçu avant impression",downloadPdf:"Télécharger le PDF",includeRec:"Joindre les photos des reçus au PDF",pdfMaking:"Création du PDF…",pdfFail:"PDF non créé : ",
  printHint:"Touchez Télécharger le PDF, puis choisissez Imprimer ou enregistrez-le dans Fichiers.",pdfNoLib:"L'outil PDF ne s'est pas chargé. Vérifiez la connexion et rouvrez la page.",noDownloads:"Le téléchargement n'est pas disponible ici. Ouvrez la page dans un navigateur en étant connecté.",amt:"Montant",remove:"Retirer"},
 fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",erased:"همهٔ اطلاعات پاک شد",eraseQ:"همهٔ ماه‌ها، همهٔ عکس‌های رسید و تنظیمات شما از این گوشی پاک می‌شود. اگر ممکن است لازمشان داشته باشید، اول پشتیبان بگیرید.",eraseAll:"پاک کردن همه‌چیز از این گوشی",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",clearTitle:"پاک کردن اطلاعات",clearMonth:"پاک کردن این ماه",clearMonthQ:"همهٔ روزها، رسیدهای پارکینگ، قیمت سوخت و اضافه‌کاری {m} پاک شود؟ نام، شرکت، تلفن و لیز سر جایشان می‌مانند.",monthCleared:"ماه پاک شد",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"دفتر هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
- dueLabel:"مبلغ قابل دریافت این ماه",fuel:"سوخت",parking:"پارکینگ",phone:"تلفن",lease:"لیز",ot:"اضافه‌کاری",total:"جمع",
+ dueLabel:"مبلغ قابل دریافت این ماه",fuel:"سوخت",parking:"پارکینگ",phone:"تلفن",lease:"لیز",ot:"مبلغ اضافی",total:"جمع",
  fuelHint:"قیمت سوخت این ماه هنوز وارد نشده. در کادر پایین واردش کنید.",
  kpiKm:"کیلومتر کاری",kpiDays:"روز ثبت‌شده",kpiPark:"پارکینگ",logToday:"ثبت امروز",logDay:"ثبت یک روز",printBtn:"چاپ فرم (PDF)",csvBtn:"خروجی CSV",copyBtn:"کپی خلاصه",
- settings:"تنظیمات ماه",sName:"نام کارمند",sFuel:"قیمت سوخت برای هر ۱۰۰ کیلومتر",monthlyTitle:"مبالغ آخر ماه",monthlyNote:"دفتر این‌ها را آخر هر ماه اعلام می‌کند.",sOt:"اضافه‌کاری",sPhone:"تلفن، ثابت ($)",sLease:"لیز خودرو، ثابت ($)",
+ settings:"تنظیمات ماه",sName:"نام کارمند",sFuel:"قیمت سوخت برای هر ۱۰۰ کیلومتر",monthlyTitle:"مبالغ آخر ماه",monthlyNote:"دفتر این‌ها را آخر هر ماه اعلام می‌کند.",sOt:"مبلغ اضافی",sOtNote:"بابت چه؟ (اختیاری)",otNotePh:"مثلاً اضافه‌کاری، پاداش",sPhone:"تلفن، ثابت ($)",sLease:"لیز خودرو، ثابت ($)",
  sNote:"تلفن و لیز به ماه بعد منتقل می‌شوند.",sWe:"باز کردن شنبه و یکشنبه (اگر آخر هفته کار کرده‌اید)",
  extrasNote:"مبالغ دیگر (اختیاری)",addExtra:"+ افزودن مبلغ",extraPh:"عنوان",other:"سایر",days:"روزهای ماه",notLogged:"ثبت نشده",weekendOff:"آخر هفته · تعطیل",
  receipts:n=>`${n} رسید`,start:"کیلومترشمار شروع",end:"کیلومترشمار پایان",kmToday:"کیلومتر کاری امروز",dist:"مسافت طی‌شده",dayCol:"روز",errOdo:"کیلومترشمار پایان باید بیشتر از شروع باشد.",
@@ -408,7 +409,7 @@ function render(){
   document.querySelector(".brand small").hidden=!state.settings.company;
   const x=totals();
   $("due").textContent=money(x.due);
-  const rows=[[`${t("fuel")} <span class="num">(${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)})</span>`,x.kmAmt],[t("parking"),x.park],[t("phone"),x.phone],[t("lease"),x.lease],[t("ot"),x.ot]];
+  const rows=[[`${t("fuel")} <span class="num">(${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)})</span>`,x.kmAmt],[t("parking"),x.park],[t("phone"),x.phone],[t("lease"),x.lease],[t("ot")+(state.settings.otNote?` (${esc(state.settings.otNote)})`:""),x.ot]];
   x.extras.forEach(e=>rows.push([esc(e.label),e.amt]));
   $("break").innerHTML=rows.map(([l,v])=>`<dt>${l}</dt><dd class="num">$${money(v)}</dd>`).join("");
   $("rateHint").hidden=!!x.fuel;
@@ -433,7 +434,7 @@ function render(){
 }
 function fillSettings(){
   const s=state.settings;
-  $("sCompany").value=s.company||"";$("sName").value=s.name||"";$("sFuel").value=s.fuel??"";$("sOt").value=s.ot??"";$("sPhone").value=s.phone??"";$("sLease").value=s.lease??"";$("sWe").checked=!!s.weekends;
+  $("sCompany").value=s.company||"";$("sName").value=s.name||"";$("sFuel").value=s.fuel??"";$("sOt").value=s.ot??"";$("sOtNote").value=s.otNote||"";$("sPhone").value=s.phone??"";$("sLease").value=s.lease??"";$("sWe").checked=!!s.weekends;
   $("extras").innerHTML=(s.extras||[]).map((e,i)=>`<div class="extra"><input class="txt" data-x="${i}" data-f="label" value="${esc(e.label)}" placeholder="${esc(t("extraPh"))}"><input data-x="${i}" data-f="amt" inputmode="decimal" value="${esc(e.amt)}" placeholder="0.00"><button class="icon-btn" data-delx="${i}" aria-label="${esc(t("remove"))}">×</button></div>`).join("");
 }
 function setStatus(k){statusKey=k;const map={loading:"loading",savedAcct:"saved",saved:"saved",saving:"saving",saveErr:"error",localOnly:"saved"};$("status").dataset.s=map[k]||"loading";$("status").querySelector("span").textContent=t(k)}
@@ -560,14 +561,14 @@ async function shrink(file){
 const BK_LOGO="data:image/png;base64,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";
 const fileBase=()=>{const c=(state.settings.company||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");return `${c?c+"_":""}Car_Expense_${MONTHS.en[ym.m]}_${ym.y}`};
 // printed form: one language only (French when the app is in French, otherwise English)
-const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) per 100 km",ot:"Overtime",date:"Date",start:"Start odometer",end:"End odometer",km:"Work km",park:"Parking",rec:"Receipts",weekend:"Weekend",total:"TOTAL",
-  kmLine:"Work kilometres",parkLine:"Total parking",phone:"Other (phone)",lease:"Car lease",otLine:"Overtime",due:"AMOUNT DUE",receipt:"Parking receipt",dev:"Developed by",wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]},
- fr:{title:"Journal des dépenses automobile",emp:"Nom de l'employé",fuel:"Prix de l'essence (CAD) par 100 km",ot:"Temps supplémentaire",date:"Date",start:"Odomètre de départ",end:"Odomètre final",km:"Total des kms (travail)",park:"Parcomètre",rec:"Reçus",weekend:"Fin de semaine",total:"TOTAL",
-  kmLine:"Kilomètres au travail",parkLine:"Total pour le stationnement",phone:"Autre (téléphone)",lease:"Location (leasing)",otLine:"Temps supplémentaire",due:"MONTANT DÛ",receipt:"Reçu de stationnement",dev:"Développé par",wd:["dim","lun","mar","mer","jeu","ven","sam"]}};
+const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) per 100 km",ot:"Additional amount",date:"Date",start:"Start odometer",end:"End odometer",km:"Work km",park:"Parking",rec:"Receipts",weekend:"Weekend",total:"TOTAL",
+  kmLine:"Work kilometres",parkLine:"Total parking",phone:"Other (phone)",lease:"Car lease",otLine:"Additional amount",due:"AMOUNT DUE",receipt:"Parking receipt",dev:"Developed by",wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]},
+ fr:{title:"Journal des dépenses automobile",emp:"Nom de l'employé",fuel:"Prix de l'essence (CAD) par 100 km",ot:"Montant additionnel",date:"Date",start:"Odomètre de départ",end:"Odomètre final",km:"Total des kms (travail)",park:"Parcomètre",rec:"Reçus",weekend:"Fin de semaine",total:"TOTAL",
+  kmLine:"Kilomètres au travail",parkLine:"Total pour le stationnement",phone:"Autre (téléphone)",lease:"Location (leasing)",otLine:"Montant additionnel",due:"MONTANT DÛ",receipt:"Reçu de stationnement",dev:"Développé par",wd:["dim","lun","mar","mer","jeu","ven","sam"]}};
 const pl=()=>lang==="fr"?"fr":"en";
 function formRows(L){L=L||PT[pl()];const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
   out.push({i,off:!isOpen(i),label:`${L.wd[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
-function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine,"",x.ot]];
+function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine+(state.settings.otNote?` (${state.settings.otNote})`:""),"",x.ot]];
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
@@ -665,7 +666,7 @@ function csv(){
   L.push([q("Nom de l'employé"),q(s.name)].join(","));
   L.push([q("Mois et la Date"),q(`${ym.y}-${pad(ym.m+1)}`)].join(","));
   L.push([q("Fuel Cost (CAD) Price"),q(x.fuel.toFixed(4))].join(","));
-  L.push([q("Over Time"),q(money(x.ot))].join(","));L.push("");
+  L.push([q("Montant additionnel"+(state.settings.otNote?` (${state.settings.otNote})`:"")),q(money(x.ot))].join(","));L.push("");
   L.push(["Date","Odomètre de départ","Odomètre final","Total des kms (travail)","Parcomètre","Reçus","Note"].map(q).join(","));
   for(let i=1;i<=daysIn();i++){if(!isOpen(i))continue;const d=state.days[i]||{};L.push([`${ym.y}-${pad(ym.m+1)}-${pad(i)}`,d.start||"",d.end||"",kmOf(d)||"",parkOf(d)?money(parkOf(d)):"",parksOf(d).length||"",d.note||""].map(q).join(","))}
   L.push(["TOTAL","","",x.km,money(x.park),x.rec,""].map(q).join(","));L.push("");
@@ -689,14 +690,14 @@ async function flushNow(){clearTimeout(saveTimer);await flush();let n=0;while(sa
 $("prev").onclick=async()=>{await flushNow();ym=ym.m===0?{y:ym.y-1,m:11}:{y:ym.y,m:ym.m-1};loadMonth()};
 $("next").onclick=async()=>{await flushNow();ym=ym.m===11?{y:ym.y+1,m:0}:{y:ym.y,m:ym.m+1};loadMonth()};
 const onSet=e=>{if(!state)return;
-  const s=state.settings,el=e.target,map={sCompany:"company",sName:"name",sFuel:"fuel",sOt:"ot",sPhone:"phone",sLease:"lease"};
+  const s=state.settings,el=e.target,map={sCompany:"company",sName:"name",sFuel:"fuel",sOt:"ot",sOtNote:"otNote",sPhone:"phone",sLease:"lease"};
   if(map[el.id])s[map[el.id]]=el.value;else if(el.id==="sWe")s.weekends=el.checked;else if(el.dataset.x!=null)s.extras[+el.dataset.x][el.dataset.f]=el.value;
   scheduleSave();render()};
 $("settings").addEventListener("input",onSet);$("monthly").addEventListener("input",onSet);$("details").addEventListener("input",onSet);
 $("settings").addEventListener("click",e=>{const d=e.target.closest("[data-delx]");if(d){state.settings.extras.splice(+d.dataset.delx,1);scheduleSave();fillSettings();render()}});
 $("clrMonth").onclick=()=>{$("clrQ").textContent=t("clearMonthQ").replace("{m}",`${MONTHS[lang][ym.m]} ${ym.y}`);$("clrConfirm").hidden=false};
 $("clrNo").onclick=()=>{$("clrConfirm").hidden=true};
-$("clrYes").onclick=()=>{state.days={};state.settings.fuel=null;state.settings.ot=null;scheduleSave();fillSettings();render();$("clrConfirm").hidden=true;toast(t("monthCleared"))};
+$("clrYes").onclick=()=>{state.days={};state.settings.fuel=null;state.settings.ot=null;state.settings.otNote="";scheduleSave();fillSettings();render();$("clrConfirm").hidden=true;toast(t("monthCleared"))};
 $("addExtra").onclick=()=>{state.settings.extras=state.settings.extras||[];state.settings.extras.push({label:"",amt:""});fillSettings();scheduleSave();$("extras").lastElementChild?.querySelector("input")?.focus()};
 $("printBtn").onclick=openPrint;
 $("copyBtn").onclick=()=>{const txt=summaryText();try{navigator.clipboard.writeText(txt).then(()=>toast(t("copied")),()=>viewText(txt))}catch(e){viewText(txt)}};
