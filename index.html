@@ -147,6 +147,10 @@ input.txt{font-family:var(--f-body)}
 input[inputmode]{direction:ltr;text-align:left}
 .extra{display:grid;grid-template-columns:1fr 7.5em 38px;gap:8px;align-items:center}
 .note{font-size:12.5px;color:var(--muted)}
+.danger-zone{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px}
+.danger-zone b{font-size:14px}
+.confirm{display:flex;flex-direction:column;gap:8px;background:color-mix(in srgb,var(--danger) 9%,transparent);border-radius:12px;padding:10px 12px}
+.confirm .note{color:var(--fg)}
 .check{display:flex;gap:10px;align-items:center;font-size:14px}
 .check input{width:20px;height:20px;flex:none}
 
@@ -267,6 +271,13 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
         <div class="note" data-t="backupNote"></div>
         <div class="row"><button class="btn" id="bkBtn" type="button" data-t="backup"></button><label class="btn" style="text-align:center;cursor:pointer;flex:1"><span data-t="restore"></span><input type="file" id="rsFile" accept="application/json,.json" hidden></label></div>
       </div>
+      <div class="full danger-zone">
+        <b data-t="clearTitle"></b>
+        <button class="btn danger" id="clrMonth" type="button" data-t="clearMonth"></button>
+        <div class="confirm" id="clrConfirm" hidden><div class="note" id="clrQ"></div><div class="row"><button class="btn danger" id="clrYes" type="button" data-t="yes"></button><button class="btn" id="clrNo" type="button" data-t="no"></button></div></div>
+        <button class="btn ghost danger" id="eraseBtn" type="button" data-t="eraseAll"></button>
+        <div class="confirm" id="eraseConfirm" hidden><div class="note" data-t="eraseQ"></div><div class="row"><button class="btn danger" id="eraseYes" type="button" data-t="yes"></button><button class="btn" id="eraseNo" type="button" data-t="no"></button></div></div>
+      </div>
     </div>
   </details>
 
@@ -287,7 +298,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 (() => {
 // ---------- language ----------
 const T={
-en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",restored:"Backup restored",restore:"Restore backup",backup:"Save backup",backupNote:"Your log is saved on this phone only. Save a backup file now and then (Files, Drive or email) to keep it safe or move it to a new phone.",backupTitle:"Backup",installLater:"Not now",installBtn:"Install",installAndroid:"In Chrome, tap ⋮ then “Install app” or “Add to Home screen”.",installIos:"In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”.",installTitle:"Install this app on your phone",detailsTitle:"Form details",namePh:"First and last name",coPh:"e.g. the company you work for",brandSub:"Car Expense Log",sCompany:"Company name",devBy:"Developed by",loading:"Opening your log…",savedAcct:"Saved to your account · on all your devices",saving:"Saving…",saved:"Saved",saveErr:"Not saved. Check your connection; retrying.",localOnly:"Saved on this phone",
+en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",restored:"Backup restored",restore:"Restore backup",backup:"Save backup",erased:"All data erased",eraseQ:"This deletes every month, every receipt photo and your settings from this phone. Save a backup first if you may need them.",eraseAll:"Erase everything on this phone",backupNote:"Your log is saved on this phone only. Save a backup file now and then (Files, Drive or email) to keep it safe or move it to a new phone.",backupTitle:"Backup",installLater:"Not now",installBtn:"Install",installAndroid:"In Chrome, tap ⋮ then “Install app” or “Add to Home screen”.",installIos:"In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”.",installTitle:"Install this app on your phone",clearTitle:"Clear data",clearMonth:"Clear this month",clearMonthQ:"Clear all days, parking receipts, fuel price and overtime for {m}? Your name, company, phone and lease stay.",monthCleared:"Month cleared",detailsTitle:"Form details",namePh:"First and last name",coPh:"e.g. the company you work for",brandSub:"Car Expense Log",sCompany:"Company name",devBy:"Developed by",loading:"Opening your log…",savedAcct:"Saved to your account · on all your devices",saving:"Saving…",saved:"Saved",saveErr:"Not saved. Check your connection; retrying.",localOnly:"Saved on this phone",
  dueLabel:"Amount due this month · Montant dû",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Overtime",total:"Total",
  fuelHint:"Fuel price for this month isn't entered yet. Enter it in the box below.",
  kpiKm:"Work km",kpiDays:"Days logged",kpiPark:"Parking",logToday:"Log today",logDay:"Log a day",printBtn:"Print form (PDF)",csvBtn:"Export CSV",copyBtn:"Copy summary",
@@ -301,7 +312,7 @@ en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",
  weekendToast:"Today is a weekend. If you worked, open weekends in Month settings.",copied:"Summary copied",copyManual:"Select and copy the text:",fileReady:"File ready",
  printTitle:"Print preview",downloadPdf:"Download PDF",includeRec:"Attach receipt photos to the PDF",pdfMaking:"Building PDF…",pdfFail:"PDF couldn't be built: ",
  printHint:"Tap Download PDF, then choose Print, or save it to Files.",pdfNoLib:"The PDF tool didn't load. Check your connection and reopen the page.",noDownloads:"Downloads aren't available in this view. Open the page in a browser while signed in.",amt:"Amount",remove:"Remove"},
-fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegarde du journal.",restored:"Sauvegarde restaurée",restore:"Restaurer une sauvegarde",backup:"Enregistrer une sauvegarde",backupNote:"Votre journal est enregistré sur ce téléphone seulement. Enregistrez une sauvegarde de temps en temps (Fichiers, Drive ou courriel) pour la protéger ou la transférer sur un nouveau téléphone.",backupTitle:"Sauvegarde",installLater:"Plus tard",installBtn:"Installer",installAndroid:"Dans Chrome, touchez ⋮ puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».",installIos:"Dans Safari, touchez Partager (carré avec une flèche), puis « Sur l'écran d'accueil ».",installTitle:"Installer l'application sur votre téléphone",detailsTitle:"Renseignements du formulaire",namePh:"Prénom et nom",coPh:"ex. l'entreprise où vous travaillez",brandSub:"Journal des dépenses automobile",sCompany:"Nom de l'entreprise",devBy:"Développé par",loading:"Ouverture du journal…",savedAcct:"Enregistré dans votre compte · sur tous vos appareils",saving:"Enregistrement…",saved:"Enregistré",saveErr:"Non enregistré. Vérifiez la connexion; nouvel essai.",localOnly:"Enregistré sur ce téléphone",
+fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegarde du journal.",restored:"Sauvegarde restaurée",restore:"Restaurer une sauvegarde",backup:"Enregistrer une sauvegarde",erased:"Toutes les données sont effacées",eraseQ:"Cela supprime tous les mois, toutes les photos de reçus et vos paramètres de ce téléphone. Enregistrez d'abord une sauvegarde si vous pourriez en avoir besoin.",eraseAll:"Tout effacer sur ce téléphone",backupNote:"Votre journal est enregistré sur ce téléphone seulement. Enregistrez une sauvegarde de temps en temps (Fichiers, Drive ou courriel) pour la protéger ou la transférer sur un nouveau téléphone.",backupTitle:"Sauvegarde",installLater:"Plus tard",installBtn:"Installer",installAndroid:"Dans Chrome, touchez ⋮ puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».",installIos:"Dans Safari, touchez Partager (carré avec une flèche), puis « Sur l'écran d'accueil ».",installTitle:"Installer l'application sur votre téléphone",clearTitle:"Effacer des données",clearMonth:"Effacer ce mois",clearMonthQ:"Effacer toutes les journées, les reçus de stationnement, le prix de l'essence et le temps supplémentaire de {m}? Votre nom, l'entreprise, le téléphone et la location sont conservés.",monthCleared:"Mois effacé",detailsTitle:"Renseignements du formulaire",namePh:"Prénom et nom",coPh:"ex. l'entreprise où vous travaillez",brandSub:"Journal des dépenses automobile",sCompany:"Nom de l'entreprise",devBy:"Développé par",loading:"Ouverture du journal…",savedAcct:"Enregistré dans votre compte · sur tous vos appareils",saving:"Enregistrement…",saved:"Enregistré",saveErr:"Non enregistré. Vérifiez la connexion; nouvel essai.",localOnly:"Enregistré sur ce téléphone",
  dueLabel:"Montant dû ce mois-ci",fuel:"Essence",parking:"Stationnement",phone:"Téléphone",lease:"Location (leasing)",ot:"Temps supplémentaire",total:"Total",
  fuelHint:"Le prix de l'essence du mois n'est pas encore saisi. Entrez-le dans la case ci-dessous.",
  kpiKm:"Km travail",kpiDays:"Jours saisis",kpiPark:"Stationnement",logToday:"Saisir aujourd'hui",logDay:"Saisir une journée",printBtn:"Imprimer le formulaire (PDF)",csvBtn:"Exporter CSV",copyBtn:"Copier le résumé",
@@ -315,7 +326,7 @@ fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegard
  weekendToast:"Aujourd'hui, c'est la fin de semaine. Si vous avez travaillé, ouvrez les fins de semaine dans Paramètres du mois.",copied:"Résumé copié",copyManual:"Sélectionnez et copiez le texte :",fileReady:"Fichier prêt",
  printTitle:"Aperçu avant impression",downloadPdf:"Télécharger le PDF",includeRec:"Joindre les photos des reçus au PDF",pdfMaking:"Création du PDF…",pdfFail:"PDF non créé : ",
  printHint:"Touchez Télécharger le PDF, puis choisissez Imprimer ou enregistrez-le dans Fichiers.",pdfNoLib:"L'outil PDF ne s'est pas chargé. Vérifiez la connexion et rouvrez la page.",noDownloads:"Le téléchargement n'est pas disponible ici. Ouvrez la page dans un navigateur en étant connecté.",amt:"Montant",remove:"Retirer"},
-fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"Car Expense Log · هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
+fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",erased:"همهٔ اطلاعات پاک شد",eraseQ:"همهٔ ماه‌ها، همهٔ عکس‌های رسید و تنظیمات شما از این گوشی پاک می‌شود. اگر ممکن است لازمشان داشته باشید، اول پشتیبان بگیرید.",eraseAll:"پاک کردن همه‌چیز از این گوشی",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",clearTitle:"پاک کردن اطلاعات",clearMonth:"پاک کردن این ماه",clearMonthQ:"همهٔ روزها، رسیدهای پارکینگ، قیمت سوخت و اضافه‌کاری {m} پاک شود؟ نام، شرکت، تلفن و لیز سر جایشان می‌مانند.",monthCleared:"ماه پاک شد",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"Car Expense Log · هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
  dueLabel:"مبلغ قابل دریافت این ماه",fuel:"سوخت",parking:"پارکینگ",phone:"تلفن",lease:"لیز",ot:"اضافه‌کاری",total:"جمع",
  fuelHint:"قیمت سوخت این ماه هنوز وارد نشده. در کادر پایین واردش کنید.",
  kpiKm:"کیلومتر کاری",kpiDays:"روز ثبت‌شده",kpiPark:"پارکینگ",logToday:"ثبت امروز",logDay:"ثبت یک روز",printBtn:"چاپ فرم (PDF)",csvBtn:"خروجی CSV",copyBtn:"کپی خلاصه",
@@ -674,6 +685,9 @@ const onSet=e=>{if(!state)return;
   scheduleSave();render()};
 $("settings").addEventListener("input",onSet);$("monthly").addEventListener("input",onSet);$("details").addEventListener("input",onSet);
 $("settings").addEventListener("click",e=>{const d=e.target.closest("[data-delx]");if(d){state.settings.extras.splice(+d.dataset.delx,1);scheduleSave();fillSettings();render()}});
+$("clrMonth").onclick=()=>{$("clrQ").textContent=t("clearMonthQ").replace("{m}",`${MONTHS[lang][ym.m]} ${ym.y}`);$("clrConfirm").hidden=false};
+$("clrNo").onclick=()=>{$("clrConfirm").hidden=true};
+$("clrYes").onclick=()=>{state.days={};state.settings.fuel=null;state.settings.ot=null;scheduleSave();fillSettings();render();$("clrConfirm").hidden=true;toast(t("monthCleared"))};
 $("addExtra").onclick=()=>{state.settings.extras=state.settings.extras||[];state.settings.extras.push({label:"",amt:""});fillSettings();scheduleSave();$("extras").lastElementChild?.querySelector("input")?.focus()};
 $("printBtn").onclick=openPrint;
 $("copyBtn").onclick=()=>{const txt=summaryText();try{navigator.clipboard.writeText(txt).then(()=>toast(t("copied")),()=>viewText(txt))}catch(e){viewText(txt)}};
@@ -715,6 +729,18 @@ $("rsFile").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f
     for(const [id,url] of Object.entries(b.photos||{})){const blob=await (await fetch(url)).blob();await idbPut(id,blob);PHOTO[id]=URL.createObjectURL(blob)}
     await loadMonth();toast(t("restored"));
   }catch(err){toast(t("restoreFail"))}};
+
+// ---------- erase everything ----------
+$("eraseBtn").onclick=()=>{$("eraseConfirm").hidden=false};
+$("eraseNo").onclick=()=>{$("eraseConfirm").hidden=true};
+$("eraseYes").onclick=async()=>{
+  clearTimeout(saveTimer);dirty=false;
+  const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("carlog:")&&k!=="carlog:lang")keys.push(k)}
+  keys.forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  try{const d=await idb();await new Promise(res=>{const tx=d.transaction("photos","readwrite");tx.objectStore("photos").clear();tx.oncomplete=res;tx.onerror=res})}catch(e){}
+  for(const id in PHOTO){try{URL.revokeObjectURL(PHOTO[id])}catch(e){}delete PHOTO[id]}
+  $("eraseConfirm").hidden=true;await loadMonth();fillSettings();toast(t("erased"));
+};
 
 // ---------- install ----------
 let deferredPrompt=null;
