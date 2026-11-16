@@ -303,10 +303,10 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 // ---------- language ----------
 const T={
 en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",restored:"Backup restored",restore:"Restore backup",backup:"Save backup",erased:"All data erased",eraseQ:"This deletes every month, every receipt photo and your settings from this phone. Save a backup first if you may need them.",eraseAll:"Erase everything on this phone",backupNote:"Your log is saved on this phone only. Save a backup file now and then (Files, Drive or email) to keep it safe or move it to a new phone.",backupTitle:"Backup",installLater:"Not now",installBtn:"Install",installAndroid:"In Chrome, tap ⋮ then “Install app” or “Add to Home screen”.",installIos:"In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”.",installTitle:"Install this app on your phone",clearTitle:"Clear data",clearMonth:"Clear this month",clearMonthQ:"Clear all days, parking receipts, fuel price and overtime for {m}? Your name, company, phone and lease stay.",monthCleared:"Month cleared",detailsTitle:"Form details",namePh:"First and last name",coPh:"e.g. the company you work for",brandSub:"Car Expense Log",sCompany:"Company name",devBy:"Developed by",loading:"Opening your log…",savedAcct:"Saved to your account · on all your devices",saving:"Saving…",saved:"Saved",saveErr:"Not saved. Check your connection; retrying.",localOnly:"Saved on this phone",
- dueLabel:"Amount due this month · Montant dû",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Overtime",total:"Total",
+ dueLabel:"Amount due this month",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Overtime",total:"Total",
  fuelHint:"Fuel price for this month isn't entered yet. Enter it in the box below.",
  kpiKm:"Work km",kpiDays:"Days logged",kpiPark:"Parking",logToday:"Log today",logDay:"Log a day",printBtn:"Print form (PDF)",csvBtn:"Export CSV",copyBtn:"Copy summary",
- settings:"Month settings",sName:"Employee name / Nom de l'employé",sFuel:"Fuel price per 100 km",monthlyTitle:"Month-end amounts",monthlyNote:"The office gives these at the end of each month.",sOt:"Overtime",sPhone:"Phone, fixed ($)",sLease:"Car lease, fixed ($)",
+ settings:"Month settings",sName:"Employee name",sFuel:"Fuel price per 100 km",monthlyTitle:"Month-end amounts",monthlyNote:"The office gives these at the end of each month.",sOt:"Overtime",sPhone:"Phone, fixed ($)",sLease:"Car lease, fixed ($)",
  sNote:"Phone and lease carry over to the next month.",sWe:"Open Saturdays and Sundays (if you worked a weekend)",
  extrasNote:"Other amounts (optional)",addExtra:"+ Add amount",extraPh:"Label",other:"Other",days:"Days of the month",notLogged:"Not logged",weekendOff:"Weekend · off",
  receipts:n=>`${n} receipt${n===1?"":"s"}`,start:"Start odometer",end:"End odometer",kmToday:"Work km today",dist:"Distance (km)",dayCol:"Day",errOdo:"End odometer must be higher than start.",
@@ -330,7 +330,7 @@ fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegard
  weekendToast:"Aujourd'hui, c'est la fin de semaine. Si vous avez travaillé, ouvrez les fins de semaine dans Paramètres du mois.",copied:"Résumé copié",copyManual:"Sélectionnez et copiez le texte :",fileReady:"Fichier prêt",
  printTitle:"Aperçu avant impression",downloadPdf:"Télécharger le PDF",includeRec:"Joindre les photos des reçus au PDF",pdfMaking:"Création du PDF…",pdfFail:"PDF non créé : ",
  printHint:"Touchez Télécharger le PDF, puis choisissez Imprimer ou enregistrez-le dans Fichiers.",pdfNoLib:"L'outil PDF ne s'est pas chargé. Vérifiez la connexion et rouvrez la page.",noDownloads:"Le téléchargement n'est pas disponible ici. Ouvrez la page dans un navigateur en étant connecté.",amt:"Montant",remove:"Retirer"},
-fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",erased:"همهٔ اطلاعات پاک شد",eraseQ:"همهٔ ماه‌ها، همهٔ عکس‌های رسید و تنظیمات شما از این گوشی پاک می‌شود. اگر ممکن است لازمشان داشته باشید، اول پشتیبان بگیرید.",eraseAll:"پاک کردن همه‌چیز از این گوشی",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",clearTitle:"پاک کردن اطلاعات",clearMonth:"پاک کردن این ماه",clearMonthQ:"همهٔ روزها، رسیدهای پارکینگ، قیمت سوخت و اضافه‌کاری {m} پاک شود؟ نام، شرکت، تلفن و لیز سر جایشان می‌مانند.",monthCleared:"ماه پاک شد",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"Car Expense Log · هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
+fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",erased:"همهٔ اطلاعات پاک شد",eraseQ:"همهٔ ماه‌ها، همهٔ عکس‌های رسید و تنظیمات شما از این گوشی پاک می‌شود. اگر ممکن است لازمشان داشته باشید، اول پشتیبان بگیرید.",eraseAll:"پاک کردن همه‌چیز از این گوشی",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",clearTitle:"پاک کردن اطلاعات",clearMonth:"پاک کردن این ماه",clearMonthQ:"همهٔ روزها، رسیدهای پارکینگ، قیمت سوخت و اضافه‌کاری {m} پاک شود؟ نام، شرکت، تلفن و لیز سر جایشان می‌مانند.",monthCleared:"ماه پاک شد",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"دفتر هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
  dueLabel:"مبلغ قابل دریافت این ماه",fuel:"سوخت",parking:"پارکینگ",phone:"تلفن",lease:"لیز",ot:"اضافه‌کاری",total:"جمع",
  fuelHint:"قیمت سوخت این ماه هنوز وارد نشده. در کادر پایین واردش کنید.",
  kpiKm:"کیلومتر کاری",kpiDays:"روز ثبت‌شده",kpiPark:"پارکینگ",logToday:"ثبت امروز",logDay:"ثبت یک روز",printBtn:"چاپ فرم (PDF)",csvBtn:"خروجی CSV",copyBtn:"کپی خلاصه",
@@ -559,19 +559,24 @@ async function shrink(file){
 // ---------- printable form (EN / FR like the employer form) ----------
 const BK_LOGO="data:image/png;base64,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";
 const fileBase=()=>{const c=(state.settings.company||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");return `${c?c+"_":""}Car_Expense_${MONTHS.en[ym.m]}_${ym.y}`};
-function formRows(){const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
-  out.push({i,off:!isOpen(i),label:`${WD_EN3[wd]} / ${WD_FR3[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
-function sumLines(x){const L=[["Work kilometres / Kilomètres au travail",`${fmtInt(x.km)} km ÷ 100 × $${x.fuel.toFixed(4)}`,x.kmAmt],["Total parking / Total pour le stationnement","",x.park],["Other (phone) / Autre (téléphone)","",x.phone],["Car lease / Location (leasing)","",x.lease],["Over Time / Temps supplémentaire","",x.ot]];
-  x.extras.forEach(e=>L.push([e.label,"",e.amt]));return L}
+// printed form: one language only (French when the app is in French, otherwise English)
+const PT={en:{title:"Car Expense Log",emp:"Employee name",fuel:"Fuel cost (CAD) per 100 km",ot:"Overtime",date:"Date",start:"Start odometer",end:"End odometer",km:"Work km",park:"Parking",rec:"Receipts",weekend:"Weekend",total:"TOTAL",
+  kmLine:"Work kilometres",parkLine:"Total parking",phone:"Other (phone)",lease:"Car lease",otLine:"Overtime",due:"AMOUNT DUE",receipt:"Parking receipt",dev:"Developed by",wd:["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]},
+ fr:{title:"Journal des dépenses automobile",emp:"Nom de l'employé",fuel:"Prix de l'essence (CAD) par 100 km",ot:"Temps supplémentaire",date:"Date",start:"Odomètre de départ",end:"Odomètre final",km:"Total des kms (travail)",park:"Parcomètre",rec:"Reçus",weekend:"Fin de semaine",total:"TOTAL",
+  kmLine:"Kilomètres au travail",parkLine:"Total pour le stationnement",phone:"Autre (téléphone)",lease:"Location (leasing)",otLine:"Temps supplémentaire",due:"MONTANT DÛ",receipt:"Reçu de stationnement",dev:"Développé par",wd:["dim","lun","mar","mer","jeu","ven","sam"]}};
+const pl=()=>lang==="fr"?"fr":"en";
+function formRows(L){L=L||PT[pl()];const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
+  out.push({i,off:!isOpen(i),label:`${L.wd[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
+function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine,"",x.ot]];
+  x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
-  const s=state.settings,x=totals();
-  const rows=formRows().map(r=>`<tr class="${r.off?"off":""}"><td>${esc(r.label)}</td><td>${r.off?"—":r.start}</td><td>${r.off?"":r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`).join("");
-  return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>Car Expense Log · Journal des dépenses automobile</h4>
-  <div class="meta"><div><b>Employee / Nom de l'employé:</b> ${esc(s.name)||"________"}</div><div><b>Month / Mois:</b> ${MONTHS.en[ym.m]} / ${MONTHS.fr[ym.m]} ${ym.y}</div>
-  <div><b>Fuel Cost (CAD) Price:</b> $${x.fuel.toFixed(4)} / 100 km</div><div><b>Over Time:</b> $${money(x.ot)}</div></div>
-  <table><thead><tr><th>Date</th><th>Start odometer<small>Odomètre de départ</small></th><th>End odometer<small>Odomètre final</small></th><th>Work km<small>Total des kms (travail)</small></th><th>Parking<small>Parcomètre</small></th><th>Receipts<small>Reçus</small></th></tr></thead>
-  <tbody>${rows}<tr class="tot"><td>TOTAL</td><td></td><td></td><td>${fmtInt(x.km)}</td><td>$${money(x.park)}</td><td>${x.rec}</td></tr></tbody></table>
-  <div class="sum">${sumLines(x).map(([l,f,v])=>`<div>${esc(l)}${f?` <span style="color:#6b736f">(${f})</span>`:""}</div><div>$${money(v)}</div>`).join("")}<div class="due">AMOUNT DUE / MONTANT DÛ</div><div class="due">$${money(x.due)}</div></div><div style="margin-top:14px;color:#6b736f;font-size:8px">Developed by Alex Rajabi · Bizkonic</div></div>`;
+  const s=state.settings,x=totals(),k=pl(),L=PT[k];
+  const rows=formRows(L).map(r=>r.off?`<tr class="off"><td>${esc(r.label)}</td><td colspan="5">${L.weekend}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`).join("");
+  return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>${L.title} · ${MONTHS[k][ym.m]} ${ym.y}</h4>
+  <div class="meta"><div><b>${L.emp}:</b> ${esc(s.name)||"________"}</div><div><b>${L.fuel}:</b> $${fmtRate(x.fuel)}</div><div><b>${L.ot}:</b> $${money(x.ot)}</div></div>
+  <table><thead><tr><th>${L.date}</th><th>${L.start}</th><th>${L.end}</th><th>${L.km}</th><th>${L.park}</th><th>${L.rec}</th></tr></thead>
+  <tbody>${rows}<tr class="tot"><td>${L.total}</td><td></td><td></td><td>${fmtInt(x.km)}</td><td>$${money(x.park)}</td><td>${x.rec}</td></tr></tbody></table>
+  <div class="sum">${sumLines(x,L).map(([l,f,v])=>`<div>${esc(l)}${f?` <span style="color:#6b736f">(${f})</span>`:""}</div><div>$${money(v)}</div>`).join("")}<div class="due">${L.due}</div><div class="due">$${money(x.due)}</div></div><div style="margin-top:14px;color:#6b736f;font-size:8px">${L.dev} Alex Rajabi · Bizkonic</div></div>`;
 }
 async function imgData(src){const r=await fetch(src);const b=await r.blob();const bmp=await createImageBitmap(b);const c=document.createElement("canvas");c.width=bmp.width;c.height=bmp.height;c.getContext("2d").drawImage(bmp,0,0);return{data:c.toDataURL("image/jpeg",.85),w:bmp.width,h:bmp.height}}
 async function buildPdf(withReceipts){
@@ -579,26 +584,26 @@ async function buildPdf(withReceipts){
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"letter",orientation:"portrait"});
   const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[20,44,43],grey=[95,104,100],OUT=[31,78,156];
   const font=(w,sz,c)=>{doc.setFont("helvetica",w);doc.setFontSize(sz);doc.setTextColor(...(c||ink))};
+  const k=pl(),L=PT[k];
   let y=44;
   if(s.company){font("bold",11);doc.text(s.company,M,y);y+=20}
-  font("bold",18);doc.text("Car Expense Log",M,y);
-  font("bold",13);doc.text(`${MONTHS.en[ym.m]} ${ym.y}`,M+W,y,{align:"right"});
-  y+=15;font("normal",10.5,grey);doc.text("Journal des dépenses automobile",M,y);doc.text(`${MONTHS.fr[ym.m]} ${ym.y}`,M+W,y,{align:"right"});
+  font("bold",18);doc.text(L.title,M,y);
+  font("bold",13);doc.text(`${MONTHS[k][ym.m]} ${ym.y}`,M+W,y,{align:"right"});
   // details box
   y+=12;const bh=42;doc.setDrawColor(190,184,172);doc.setLineWidth(.7);doc.rect(M,y,W,bh);
   const cell=(cx,lab,val)=>{font("normal",8.5,grey);doc.text(lab,cx,y+15);font("bold",12);doc.text(val,cx,y+32)};
-  cell(M+10,"Employee / Nom de l'employé",s.name||"");
-  cell(M+W*.47,"Fuel Cost (CAD) Price / 100 km","$"+x.fuel.toFixed(4));
-  cell(M+W*.78,"Over Time","$"+money(x.ot));
+  cell(M+10,L.emp,s.name||"");
+  cell(M+W*.47,L.fuel,"$"+fmtRate(x.fuel));
+  cell(M+W*.80,L.ot,"$"+money(x.ot));
   y+=bh+12;
   // table
-  const cols=[{h:"Date",f:"",w:112},{h:"Start odometer",f:"Odomètre de départ",w:96},{h:"End odometer",f:"Odomètre final",w:96},{h:"Work km",f:"Total des kms (travail)",w:100},{h:"Parking",f:"Parcomètre",w:78},{h:"Receipts",f:"Reçus",w:W-482}];
+  const cols=[{h:L.date,f:"",w:86},{h:L.start,f:"",w:108},{h:L.end,f:"",w:104},{h:L.km,f:"",w:120},{h:L.park,f:"",w:70},{h:L.rec,f:"",w:W-488}];
   const hh=30;doc.setFillColor(...ink);doc.rect(M,y,W,hh,"F");
   let cx=M;cols.forEach((c,ci)=>{const right=ci>0;const tx=right?cx+c.w-6:cx+6;const o=right?{align:"right"}:{};
     doc.setTextColor(247,244,238);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
     if(c.f){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(c.f,tx,y+24,o)}cx+=c.w});
   y+=hh;
-  const rows=formRows(),nOff=rows.filter(r=>r.off).length,nOn=rows.length-nOff;
+  const rows=formRows(L),nOff=rows.filter(r=>r.off).length,nOn=rows.length-nOff;
   const tableEnd=600,avail=tableEnd-y-20; // 20 = total row
   const rh=Math.min(19,avail/(nOn+.55*nOff)),rhOff=rh*.55;
   rows.forEach(r=>{
@@ -606,28 +611,28 @@ async function buildPdf(withReceipts){
     if(r.off)doc.setFillColor(233,233,231);else doc.setFillColor(255,247,209);doc.rect(M,y,W,h,"F");
     doc.setDrawColor(205,199,188);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
     let xx=M;
-    if(r.off){font("normal",7,[140,145,142]);doc.text(r.label,xx+6,y+h-2.6);doc.text("Weekend / Fin de semaine",M+cols[0].w+6,y+h-2.6)}
+    if(r.off){font("normal",7,[140,145,142]);doc.text(r.label,xx+6,y+h-2.6);doc.text(L.weekend,M+cols[0].w+6,y+h-2.6)}
     else{const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)];
       cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3?"bold":"normal",10,ci===3?OUT:ink);if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w})}
     y+=h;
   });
   doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);
-  {let xx=M;font("bold",10.5,OUT);["TOTAL","","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
+  {let xx=M;font("bold",10.5,OUT);[L.total,"","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
   y+=20;
   // summary (right half)
   y+=18;const sx=M+W*.40;
-  sumLines(x).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,OUT);doc.text("$"+money(v),M+W,y,{align:"right"});
+  sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,OUT);doc.text("$"+money(v),M+W,y,{align:"right"});
     if(f){font("normal",8.5,grey);doc.text(f,sx,y+11);y+=25}else y+=16});
   doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(sx,y-8,M+W,y-8);
-  font("bold",13,OUT);doc.text("AMOUNT DUE / MONTANT DÛ",sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
+  font("bold",13,OUT);doc.text(L.due,sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
   // footer
   try{doc.addImage(BK_LOGO,"PNG",M,758,14,14)}catch(e){}
-  font("normal",7.5,grey);doc.text(`Developed by Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
+  font("normal",7.5,grey);doc.text(`${L.dev} Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
   // receipts
   if(withReceipts){
     for(let i=1;i<=daysIn();i++){for(const p of parksOf(state.days[i])){if(!p.photo)continue;
       try{const im=await imgData(blobUrl(p.photo));doc.addPage("letter","portrait");font("bold",12);
-        doc.text(`Parking receipt / Reçu de stationnement · ${ym.y}-${pad(ym.m+1)}-${pad(i)} · $${money(toNum(p.amt))}`,M,50);
+        doc.text(`${L.receipt} · ${ym.y}-${pad(ym.m+1)}-${pad(i)} · $${money(toNum(p.amt))}`,M,50);
         const mh=792-2*M-40,sc=Math.min(W/im.w,mh/im.h);doc.addImage(im.data,"JPEG",M,66,im.w*sc,im.h*sc)}catch(e){}}}
   }
   return doc.output("blob");
@@ -664,12 +669,12 @@ function csv(){
   L.push(["Date","Odomètre de départ","Odomètre final","Total des kms (travail)","Parcomètre","Reçus","Note"].map(q).join(","));
   for(let i=1;i<=daysIn();i++){if(!isOpen(i))continue;const d=state.days[i]||{};L.push([`${ym.y}-${pad(ym.m+1)}-${pad(i)}`,d.start||"",d.end||"",kmOf(d)||"",parkOf(d)?money(parkOf(d)):"",parksOf(d).length||"",d.note||""].map(q).join(","))}
   L.push(["TOTAL","","",x.km,money(x.park),x.rec,""].map(q).join(","));L.push("");
-  sumLines(x).forEach(([l,,v])=>L.push([q(l),q(money(v))].join(",")));
+  sumLines(x,PT.fr).forEach(([l,,v])=>L.push([q(l),q(money(v))].join(",")));
   L.push([q("MONTANT DÛ"),q(money(x.due))].join(","));
   return "﻿"+L.join("\r\n");
 }
-function summaryText(){const s=state.settings,x=totals();
-  return [`${s.company?s.company+" · ":""}Car Expense Log — ${MONTHS.en[ym.m]} ${ym.y}`,s.name?`Employee / Nom: ${s.name}`:null,...sumLines(x).map(([l,f,v])=>`${l}: $${money(v)}${f?` (${f})`:""}`),`AMOUNT DUE / MONTANT DÛ: $${money(x.due)}`].filter(Boolean).join("\n")}
+function summaryText(){const s=state.settings,x=totals(),k=pl(),L=PT[k];
+  return [`${s.company?s.company+" · ":""}${L.title} — ${MONTHS[k][ym.m]} ${ym.y}`,s.name?`${L.emp}: ${s.name}`:null,...sumLines(x,L).map(([l,f,v])=>`${l}: $${money(v)}${f?` (${f})`:""}`),`${L.due}: $${money(x.due)}`].filter(Boolean).join("\n")}
 function viewText(txt){const h=document.createElement("div");h.className="sheet-bg";
   h.innerHTML=`<div class="sheet"><div class="note">${t("copyManual")}</div><textarea style="width:100%;min-height:220px;font:13px var(--f-ui);direction:ltr;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px">${esc(txt)}</textarea><button class="btn">${t("close")}</button></div>`;
   h.querySelector("button").onclick=()=>h.remove();document.body.appendChild(h);const ta=h.querySelector("textarea");ta.focus();ta.select()}
