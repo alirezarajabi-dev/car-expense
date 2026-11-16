@@ -2,7 +2,7 @@
 
 A phone app for the monthly car expense form: daily odometer readings, parking receipts and the month-end fuel price, exported as a printable Letter-size PDF. English, French and Persian.
 
-Open the app: **https://alirezarajabi-dev.github.io/car-expense/**
+Open the app: **https://carlog.bizkonic.com/**
 
 ## Install on your phone
 - **iPhone:** open the link in Safari, tap Share, then **Add to Home Screen**.
