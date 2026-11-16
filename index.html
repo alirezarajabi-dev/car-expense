@@ -149,8 +149,9 @@ h2{font-size:15px;margin:8px 0 0;font-weight:700}
 .day .c.km,.kpi .v,#fuelCalc b{color:var(--out)}
 .day.today{box-shadow:inset 4px 0 0 var(--accent)}
 .day.off{cursor:default;padding-block:6px;background:var(--offday)}
-.offband{background:var(--offday);color:var(--empty);font-size:11.5px;padding:3px 12px;border-bottom:1px solid var(--line)}
-button.offband{display:block;width:100%;text-align:start;border:0;border-bottom:1px solid var(--line);font:inherit;font-size:12px;padding:6px 12px;color:var(--muted);cursor:pointer}
+.offband{display:grid;grid-template-columns:52px 1fr;gap:8px;align-items:center;background:var(--offday);color:var(--muted);font-size:12px;line-height:1.3;padding:5px 12px;border-bottom:1px solid var(--line)}
+.offband .od{font-family:var(--f-ui);font-variant-numeric:tabular-nums;white-space:nowrap}
+button.offband{width:100%;text-align:start;border:0;border-bottom:1px solid var(--line);font-family:inherit;cursor:pointer}
 .day .c:not(.km){color:var(--muted)}
 .chip .num{color:var(--money)}
 .day.off .d b{font-size:15px}
@@ -451,9 +452,9 @@ function render(){
   $("todayBtn").textContent=isThis?t("logToday"):t("logDay");
   let html="";
   for(let i=1;i<=daysIn();i++){
-    if(isOffDay(i)){html+=`<li><button class="offband marked" data-day="${i}">${WD[lang][new Date(ym.y,ym.m,i).getDay()]} ${i} · ${t("noTravel")}</button></li>`;continue}
+    if(isOffDay(i)){html+=`<li><button class="offband marked" data-day="${i}"><span class="od">${PT[pl()].wd[new Date(ym.y,ym.m,i).getDay()]} ${i}</span><span class="ol">${t("noTravel")}</span></button></li>`;continue}
     if(!isOpen(i)){let j=i;const w1=new Date(ym.y,ym.m,i).getDay(),w2=new Date(ym.y,ym.m,j).getDay();
-      html+=`<li class="offband">${WD[lang][w1]} ${i}${j>i?` – ${WD[lang][w2]} ${j}`:""} · ${t("weekendOff")}</li>`;i=j;continue}
+      html+=`<li class="offband"><span class="od">${PT[pl()].wd[w1]} ${i}</span><span class="ol">${t("weekendOff")}</span></li>`;i=j;continue}
     const d=state.days[i],wd=new Date(ym.y,ym.m,i).getDay(),km=kmOf(d),p=parkOf(d),filled=hasData(d),open=isOpen(i),n=parksOf(d).length;
     const cls=["day",filled?"filled":"empty",open?"":"off",isThis&&i===now.getDate()?"today":""].join(" ");
     const chips=(p?`<span class="chip">${t("parking")} <span class="num">$${money(p)}</span></span>`:"")+(n?`<span class="chip">${t("receipts")(n)}</span>`:"");
@@ -615,7 +616,7 @@ function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 1
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
-  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td colspan="6">${esc(offLabel(g,L))}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
+  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td>${esc(r.label)}</td><td colspan="5">${L[r.reason]}</td></tr>`:`<tr><td>${esc(r.label)}</td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
   return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>${L.title} · ${MONTHS[k][ym.m]} ${ym.y}</h4>
   <div class="meta"><div><b>${L.emp}:</b> ${esc(s.name)||"________"}</div><div><b>${L.fuel}:</b> $${fmtRate(x.fuel)}</div><div><b>${L.ot}:</b> $${money(x.ot)}</div></div>
   <table><thead><tr><th>${L.date}</th><th>${L.start}</th><th>${L.end}</th><th>${L.km}</th><th>${L.park}</th><th>${L.rec}</th></tr></thead>
@@ -652,7 +653,7 @@ async function buildPdf(withReceipts){
   const tableEnd=604,avail=tableEnd-y-22;
   const bandH=9.5,rh=Math.min(20,(avail-nBand*bandH)/nOn),fs=rh<15?9.5:10;
   groups.forEach(g=>{
-    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y,M+W,y);font("normal",7.5,[85,90,88]);doc.text(offLabel(g,L),M+6,y+7);y+=bandH;return}
+    if(g.off){doc.setFillColor(232,232,232);doc.rect(M,y,W,bandH,"F");doc.setDrawColor(160,162,161);doc.setLineWidth(.5);doc.line(M,y,M+W,y);font("normal",7.5,[85,90,88]);{const r0=g.items[0];doc.text(r0.label,M+6,y+7);doc.text(L[r0.reason],M+cols[0].w+6,y+7)}y+=bandH;return}
     const r=g.items[0],h=rh;
     doc.setFillColor(255,250,226);doc.rect(M,y,W,h,"F");
     doc.setDrawColor(170,172,171);doc.setLineWidth(.5);doc.line(M,y,M+W,y);
