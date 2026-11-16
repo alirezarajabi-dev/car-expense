@@ -219,17 +219,17 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .pv-meta span{font-size:10.5px;color:var(--muted);line-height:1.25}
 .pv-meta b{font-size:14px}
 .pv-table{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-variant-numeric:tabular-nums}
-.pv-row{display:grid;grid-template-columns:60px 1fr 1fr .7fr .9fr;gap:6px;align-items:center;padding:7px 10px;background:var(--work);border-bottom:1px solid var(--line);font-size:13px}
+.pv-row{display:grid;grid-template-columns:54px 1fr 1fr .62fr .9fr 46px;gap:5px;align-items:center;padding:7px 10px;background:var(--work);border-bottom:1px solid var(--line);font-size:13px}
 .pv-row>span:not(:first-child){text-align:right}
 .pv-row:last-child{border-bottom:0}
-.pv-th{background:var(--surface);font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.2;align-items:end}
+.pv-th{background:var(--surface);font-size:10px;font-weight:700;color:var(--muted);line-height:1.2;align-items:end}
 .pv-row.off{background:var(--offday);padding-block:3px;font-size:11.5px;color:var(--muted)}
 .pv-row.off .lab{grid-column:2/-1;text-align:left!important}
 .pv-d{display:grid;grid-template-columns:34px 20px}
 .pv-d i{font-style:normal}.pv-d b{font-weight:500;text-align:right}
 .pv-row .km{color:var(--out);font-weight:700}
 .pv-row .mo{color:var(--money);font-weight:700}
-.pv-row sup{color:var(--muted);font-weight:500;font-size:9px;margin-left:2px}
+.pv-row .rc{color:var(--muted)}
 .pv-row.tot{background:var(--surface);font-weight:700;border-top:2px solid var(--fg)}
 .pv-sum{display:flex;flex-direction:column;gap:6px}
 .pv-line{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
@@ -657,14 +657,14 @@ function previewHtml(){
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
   const rows=formRows(L).map(r=>{const d=`<span class="pv-d"><i>${r.wdn}</i><b>${r.dn}</b></span>`;
     return r.off?`<div class="pv-row off">${d}<span class="lab">${L[r.reason]}</span></div>`
-      :`<div class="pv-row">${d}<span>${r.start}</span><span>${r.end}</span><span class="km">${r.km}</span><span class="mo">${r.park?"$"+r.park:""}${r.rec?`<sup>${r.rec}</sup>`:""}</span></div>`}).join("");
+      :`<div class="pv-row">${d}<span>${r.start}</span><span>${r.end}</span><span class="km">${r.km}</span><span class="mo">${r.park?"$"+r.park:""}</span><span class="rc">${r.rec||""}</span></div>`}).join("");
   return `<div class="pv">
   <div class="pv-head"><div>${s.company?`<div class="pv-co">${esc(s.company)}</div>`:""}<div class="pv-title">${L.title}</div></div><div class="pv-month">${MONTHS[k][ym.m]} ${ym.y}</div></div>
   <div class="pv-meta"><div><span>${L.emp}</span><b>${esc(s.name)||"—"}</b></div><div><span>${L.fuel}</span><b class="num">$${fmtRate(x.fuel)}</b></div><div><span>${L.ot}</span><b class="num">$${money(x.ot)}</b></div></div>
   <div class="pv-table">
-   <div class="pv-row pv-th"><span>${L.date}</span><span>${L.start}</span><span>${L.end}</span><span>${L.km}</span><span>${L.park}</span></div>
+   <div class="pv-row pv-th"><span>${L.date}</span><span>${L.start}</span><span>${L.end}</span><span>${L.km}</span><span>${L.park}</span><span>${L.rec}</span></div>
    ${rows}
-   <div class="pv-row tot"><span>${L.total}</span><span></span><span></span><span class="km">${fmtInt(x.km)}</span><span class="mo">$${money(x.park)}${x.rec?`<sup>${x.rec}</sup>`:""}</span></div>
+   <div class="pv-row tot"><span>${L.total}</span><span></span><span></span><span class="km">${fmtInt(x.km)}</span><span class="mo">$${money(x.park)}</span><span class="rc">${x.rec}</span></div>
   </div>
   <div class="pv-sum">${sumLines(x,L).map(([l,f,v])=>`<div class="pv-line"><span>${esc(l)}${f?`<small>${f}</small>`:""}</span><b class="num">$${money(v)}</b></div>`).join("")}
    <div class="pv-line due"><span>${L.due}</span><b class="num">$${money(x.due)}</b></div></div>
