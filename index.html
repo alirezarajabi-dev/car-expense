@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Car Expense Log: daily odometer readings, parking receipts and month-end fuel price, exported as a printable PDF. Developed by Alex Rajabi · Bizkonic.">
+<meta name="theme-color" content="#142c2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Car Expense">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Car Expense Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap">
+<script src="vendor/jspdf.umd.min.js"></script>
+<style>
+/* Layout: one phone column. Dark summary slab on top, then the month as a list of day rows; editing happens in bottom sheets. */
+:root{
+  --bg:#f7f4ee; --surface:#fffdf8; --fg:#142c2b; --muted:#5b6f6a; --line:#e2dccf;
+  --accent:#a8693c; --accent-fg:#fffdf8;
+  --slab:#142c2b; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
+  --empty:#9aa8a3; --danger:#b3412e; --ok:#2f7a5c; --overlay:rgba(20,44,43,.45);
+  --paper:#ffffff; --paper-fg:#142c2b; --paper-line:#c9c3b6; --paper-off:#eeebe4;
+  --f-fa:"Vazirmatn",Tahoma,"Segoe UI",sans-serif;
+  --f-ui:"Manrope","Vazirmatn",system-ui,sans-serif;
+  --f-display:"Cormorant Garamond",Georgia,serif;
+  --f-body:var(--f-ui);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
+  --accent:#dda77d; --accent-fg:#142c2b;
+  --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
+  --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1f1e; --surface:#142c2b; --fg:#f2eee4; --muted:#a9bcb6; --line:#24423f;
+  --accent:#dda77d; --accent-fg:#142c2b;
+  --slab:#1c3a38; --slab-fg:#f2eee4; --slab-muted:#b8c9c3; --slab-accent:#dda77d;
+  --empty:#5f7772; --danger:#e58a75; --ok:#7fc8a5; --overlay:rgba(0,0,0,.55); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 96px}
+body.fa{--f-body:var(--f-fa)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.num{font-family:var(--f-ui);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate;display:inline-block}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-direction:column;gap:8px;padding-block:12px 8px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+.brand b{font-size:17px;font-weight:700}
+.brand small{color:var(--muted);font-family:var(--f-ui);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.langs{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--surface);direction:ltr}
+.langs button{border:0;background:none;border-radius:999px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--muted)}
+.langs button[aria-pressed="true"]{background:var(--slab);color:var(--slab-fg)}
+.langs button[data-l="fa"]{font-family:var(--f-fa)}
+.month{display:flex;align-items:center;justify-content:center;gap:6px;direction:ltr}
+.month span{min-width:9em;text-align:center;font-weight:700;font-size:16px}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:18px;flex:none}
+
+.status{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--empty);display:inline-block;flex:none}
+.status[data-s="saved"] i{background:var(--ok)} .status[data-s="saving"] i{background:var(--accent)} .status[data-s="error"] i,.status[data-s="local"] i{background:var(--danger)}
+
+.slab{background:var(--slab);color:var(--slab-fg);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.slab .label{color:var(--slab-muted);font-size:13px}
+.due{font-family:var(--f-display);font-size:52px;font-weight:600;line-height:1}
+.due small{font-family:var(--f-ui);font-size:15px;color:var(--slab-accent);margin-inline-start:8px;letter-spacing:.06em}
+.break{display:grid;grid-template-columns:1fr auto;gap:6px 12px;font-size:14px;border-top:1px solid rgba(242,238,228,.14);padding-top:12px;margin:0}
+.break dt{color:var(--slab-muted)} .break dd{margin:0;text-align:end}
+.break .tot{color:var(--slab-fg);font-weight:700;border-top:1px solid rgba(242,238,228,.14);padding-top:6px}
+.hint{font-size:12.5px;color:var(--slab-accent)}
+
+.install{background:var(--surface);border:1.5px dashed var(--accent);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.install .ih{display:flex;gap:12px;align-items:center}
+.install .ih img{border-radius:10px;flex:none}
+.monthly{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+#details.need .f:first-of-type input{border-color:var(--accent)}
+.monthly.need{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.mh{display:flex;flex-direction:column;gap:2px}
+.mh b{font-size:15px}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.money-in{position:relative;display:block;direction:ltr}
+.money-in>span{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-family:var(--f-ui);font-size:16px}
+.money-in input{padding-left:26px;font-size:18px;font-weight:700}
+.calcline{background:var(--bg);border-radius:10px;padding:8px 12px;font-family:var(--f-ui);font-variant-numeric:tabular-nums;font-size:14px;direction:ltr;text-align:left}
+.calcline b{font-size:16px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.kpi .v{font-size:20px;font-weight:700}
+.kpi .k{font-size:12px;color:var(--muted)}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);padding:14px;font-size:16px}
+.actions .primary,.actions .print{grid-column:1/-1}
+.btn.print{background:var(--slab);color:var(--slab-fg);border-color:var(--slab)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--danger)}
+.btn:disabled{opacity:.55;cursor:default}
+
+h2{font-size:15px;margin:8px 0 0;font-weight:700}
+.credit{display:flex;flex-direction:column;align-items:center;gap:4px;padding-block:20px 8px;color:var(--muted);font-size:12.5px;text-align:center;border-top:1px solid var(--line);margin-top:12px}
+.credit b{color:var(--fg);font-family:var(--f-ui)}
+.credit a{color:var(--accent);font-family:var(--f-ui);font-size:12px;text-decoration:none}
+.bk{display:flex;align-items:center;justify-content:center;gap:10px;direction:ltr}
+.bk img{width:40px;height:40px;display:block}
+.bk-word{font-family:var(--f-display);font-size:22px;font-weight:600;color:var(--fg);letter-spacing:.02em}
+.days{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.day,.dhead{display:grid;grid-template-columns:52px 1fr 1fr .8fr;align-items:center;gap:4px 8px;padding:10px 12px;border:0;border-bottom:1px solid var(--line);width:100%;background:none;text-align:start}
+.dhead{padding-block:8px;font-size:11px;color:var(--muted);font-weight:600;line-height:1.25;background:color-mix(in srgb,var(--line) 35%,transparent)}
+.dhead span:not(:first-child),.day .c{text-align:end}
+.day .c{font-family:var(--f-ui);font-variant-numeric:tabular-nums;font-size:14px;direction:ltr;unicode-bidi:isolate}
+.day .c.km{font-weight:700;font-size:16px}
+.day .chips{grid-column:2/-1;text-align:end}
+.day .c:empty::after{content:"—";color:var(--empty)}
+.day.off .c:empty::after{content:""}
+.day .wtxt{grid-column:2/-1;font-size:12px;color:var(--empty)}
+.days li:last-child .day{border-bottom:0}
+.day .d{display:flex;flex-direction:column;line-height:1.15}
+.day .d b{font-family:var(--f-ui);font-size:20px}
+.day .d small{font-size:11px;color:var(--muted)}
+.day .odo{font-size:13px;color:var(--muted);min-width:0}
+.day .r{text-align:end;font-size:13px;white-space:nowrap}
+.day .r b{font-family:var(--f-ui);font-size:16px;color:var(--fg)}
+.day.empty .d b,.day.empty .odo{color:var(--empty)}
+.day.today{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.day.off{cursor:default;padding-block:6px;background:repeating-linear-gradient(135deg,transparent 0 8px,color-mix(in srgb,var(--line) 55%,transparent) 8px 9px)}
+.day.off .d b{font-size:15px}
+.chip{display:inline-block;font-size:11px;border:1px solid var(--line);border-radius:999px;padding:0 7px;margin-inline-start:4px;color:var(--muted)}
+
+details.settings{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:4px 16px}
+details.settings summary{cursor:pointer;padding:10px 0;font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:14px}
+.grid .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+input{font:inherit;font-family:var(--f-ui);font-size:16px;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;min-width:0}
+input.txt{font-family:var(--f-body)}
+input[inputmode]{direction:ltr;text-align:left}
+.extra{display:grid;grid-template-columns:1fr 7.5em 38px;gap:8px;align-items:center}
+.note{font-size:12.5px;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:center;font-size:14px}
+.check input{width:20px;height:20px;flex:none}
+
+.sheet-bg{position:fixed;inset:0;background:var(--overlay);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:640px;border-radius:20px 20px 0 0;max-height:92%;overflow:auto;
+  padding:18px max(18px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.sheet h3{margin:0;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.odo-pair{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.odo-pair .f{justify-content:space-between}
+.distbox{background:var(--slab);color:var(--slab-fg);border-radius:10px;padding:10px 12px;font-size:13px;direction:ltr;text-align:left;white-space:nowrap;overflow:hidden}
+.distbox b{font-size:16px}
+.calc{display:flex;justify-content:space-between;align-items:baseline;background:var(--bg);border-radius:12px;padding:10px 14px;gap:8px}
+.calc b{font-family:var(--f-ui);font-size:26px}
+.err{color:var(--danger);font-size:13px;min-height:1em}
+.sec{font-size:13px;color:var(--muted);font-weight:600}
+.parks{display:flex;flex-direction:column;gap:8px}
+.park{display:grid;grid-template-columns:56px 1fr 38px;gap:8px;align-items:center}
+.ph{width:56px;height:56px;border-radius:10px;border:1px dashed var(--muted);display:grid;place-items:center;color:var(--muted);font-size:11px;text-align:center;cursor:pointer;overflow:hidden;position:relative;line-height:1.2}
+.ph.has{border-style:solid;border-color:var(--line)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1}
+.toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--slab);color:var(--slab-fg);padding:10px 16px;border-radius:12px;z-index:40;font-size:14px;max-width:calc(100% - 32px)}
+.viewer img{width:100%;border-radius:12px}
+
+/* print preview: a sheet of paper, always light, mirrors the PDF */
+.paper-scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line);background:var(--paper-off)}
+.paper{background:var(--paper);color:var(--paper-fg);width:600px;margin:12px;padding:20px;font-family:"Manrope",Arial,sans-serif;font-size:10px;line-height:1.3;direction:ltr;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.paper h4{margin:0 0 6px;font-size:14px}
+.paper .meta{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;margin-bottom:8px}
+.paper table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.paper th{background:#142c2b;color:#f7f4ee;font-weight:600;padding:3px 4px;text-align:left;font-size:9px}
+.paper th small{display:block;font-weight:400;opacity:.8}
+.paper td{border-bottom:1px solid var(--paper-line);padding:2px 4px}
+.paper tr.off td{background:var(--paper-off);color:#8a8f8c}
+.paper tr.tot td{font-weight:700;border-top:2px solid #142c2b}
+.paper .sum{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin-top:10px;margin-inline-start:45%}
+.paper .sum .due{font-family:inherit;font-size:12px;font-weight:700;border-top:2px solid #142c2b;padding-top:3px}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" id="app">
+  <header>
+    <div class="top">
+      <div class="brand"><b id="coName"></b><small data-t="brandSub"></small></div>
+      <div class="langs" role="group" aria-label="Language">
+        <button data-l="en" aria-pressed="true">EN</button><button data-l="fr" aria-pressed="false">FR</button><button data-l="fa" aria-pressed="false">فا</button>
+      </div>
+    </div>
+    <div class="month">
+      <button class="icon-btn" id="prev" aria-label="Previous month">‹</button>
+      <span id="monthName">—</span>
+      <button class="icon-btn" id="next" aria-label="Next month">›</button>
+    </div>
+  </header>
+
+  <div class="install" id="install" hidden>
+    <div class="ih"><img src="icons/icon-192.png" alt="" width="40" height="40"><div><b data-t="installTitle"></b><div class="note" id="installHow"></div></div></div>
+    <div class="row"><button class="btn primary" id="installBtn" hidden data-t="installBtn"></button><button class="btn ghost" id="installX" data-t="installLater"></button></div>
+  </div>
+
+  <div class="status" id="status" data-s="loading"><i></i><span></span></div>
+
+  <section class="slab">
+    <div class="label" data-t="dueLabel"></div>
+    <div class="due"><span class="num" id="due">0.00</span><small>CAD</small></div>
+    <dl class="break" id="break"></dl>
+    <div class="hint" id="rateHint" hidden data-t="fuelHint"></div>
+  </section>
+
+  <section class="monthly" id="details">
+    <div class="mh"><b data-t="detailsTitle"></b></div>
+    <label class="f"><span data-t="sName"></span><input class="txt" id="sName" autocomplete="name" data-tp="namePh"></label>
+    <label class="f"><span data-t="sCompany"></span><input class="txt" id="sCompany" autocomplete="organization" data-tp="coPh"></label>
+  </section>
+
+  <section class="monthly" id="monthly">
+    <div class="mh"><b data-t="monthlyTitle"></b><span class="note" data-t="monthlyNote"></span></div>
+    <div class="mgrid">
+      <label class="f"><span data-t="sFuel"></span><span class="money-in"><span>$</span><input id="sFuel" inputmode="decimal" placeholder="21.45"></span></label>
+      <label class="f"><span data-t="sOt"></span><span class="money-in"><span>$</span><input id="sOt" inputmode="decimal" placeholder="0.00"></span></label>
+    </div>
+    <div class="calcline" id="fuelCalc"></div>
+  </section>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v num" id="kKm">0</div><div class="k" data-t="kpiKm"></div></div>
+    <div class="kpi"><div class="v num" id="kDays">0</div><div class="k" data-t="kpiDays"></div></div>
+    <div class="kpi"><div class="v num" id="kPark">$0.00</div><div class="k" data-t="kpiPark"></div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="todayBtn"></button>
+    <button class="btn print" id="printBtn" data-t="printBtn"></button>
+    <button class="btn" id="csvBtn" data-t="csvBtn"></button>
+    <button class="btn" id="copyBtn" data-t="copyBtn"></button>
+  </div>
+
+  <details class="settings" id="settings">
+    <summary data-t="settings"></summary>
+    <div class="grid">
+      <label class="f"><span data-t="sPhone"></span><input id="sPhone" inputmode="decimal" placeholder="30.00"></label>
+      <label class="f"><span data-t="sLease"></span><input id="sLease" inputmode="decimal" placeholder="500.00"></label>
+      <div class="note full" data-t="sNote"></div>
+      <label class="check full"><input type="checkbox" id="sWe"><span data-t="sWe"></span></label>
+      <div class="full" style="display:flex;flex-direction:column;gap:8px">
+        <div class="note" data-t="extrasNote"></div>
+        <div id="extras" style="display:flex;flex-direction:column;gap:8px"></div>
+        <button class="btn ghost" id="addExtra" type="button" data-t="addExtra"></button>
+      </div>
+      <div class="full" style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px">
+        <b data-t="backupTitle" style="font-size:14px"></b>
+        <div class="note" data-t="backupNote"></div>
+        <div class="row"><button class="btn" id="bkBtn" type="button" data-t="backup"></button><label class="btn" style="text-align:center;cursor:pointer;flex:1"><span data-t="restore"></span><input type="file" id="rsFile" accept="application/json,.json" hidden></label></div>
+      </div>
+    </div>
+  </details>
+
+  <h2 data-t="days"></h2>
+  <ul class="days" id="days"></ul>
+
+  <footer class="credit">
+    <div class="bk"><img src="data:image/png;base64,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" alt="" width="40" height="40"><span class="bk-word">Bizkonic</span></div>
+    <div><span data-t="devBy"></span> <b>Alex Rajabi</b></div>
+    <a href="https://bizkonic.com/" target="_blank" rel="noopener">bizkonic.com</a>
+  </footer>
+</div>
+
+<div id="sheetRoot"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+// ---------- language ----------
+const T={
+en:{brand:"Car Expense Log",restoreFail:"That file isn't a Car Expense backup.",restored:"Backup restored",restore:"Restore backup",backup:"Save backup",backupNote:"Your log is saved on this phone only. Save a backup file now and then (Files, Drive or email) to keep it safe or move it to a new phone.",backupTitle:"Backup",installLater:"Not now",installBtn:"Install",installAndroid:"In Chrome, tap ⋮ then “Install app” or “Add to Home screen”.",installIos:"In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”.",installTitle:"Install this app on your phone",detailsTitle:"Form details",namePh:"First and last name",coPh:"e.g. the company you work for",brandSub:"Car Expense Log",sCompany:"Company name",devBy:"Developed by",loading:"Opening your log…",savedAcct:"Saved to your account · on all your devices",saving:"Saving…",saved:"Saved",saveErr:"Not saved. Check your connection; retrying.",localOnly:"Saved on this phone",
+ dueLabel:"Amount due this month · Montant dû",fuel:"Fuel",parking:"Parking",phone:"Phone",lease:"Lease",ot:"Overtime",total:"Total",
+ fuelHint:"Fuel price for this month isn't entered yet. Enter it in the box below.",
+ kpiKm:"Work km",kpiDays:"Days logged",kpiPark:"Parking",logToday:"Log today",logDay:"Log a day",printBtn:"Print form (PDF)",csvBtn:"Export CSV",copyBtn:"Copy summary",
+ settings:"Month settings",sName:"Employee name / Nom de l'employé",sFuel:"Fuel price per 100 km",monthlyTitle:"Month-end amounts",monthlyNote:"The office gives these at the end of each month.",sOt:"Overtime",sPhone:"Phone, fixed ($)",sLease:"Car lease, fixed ($)",
+ sNote:"Phone and lease carry over to the next month.",sWe:"Open Saturdays and Sundays (if you worked a weekend)",
+ extrasNote:"Other amounts (optional)",addExtra:"+ Add amount",extraPh:"Label",other:"Other",days:"Days of the month",notLogged:"Not logged",weekendOff:"Weekend · off",
+ receipts:n=>`${n} receipt${n===1?"":"s"}`,start:"Start odometer",end:"End odometer",kmToday:"Work km today",dist:"Distance (km)",dayCol:"Day",errOdo:"End odometer must be higher than start.",
+ parkTitle:"Parking receipts",addPark:"+ Add parking receipt",photo:"Photo",parkTotal:"Parking total",note:"Note (optional)",notePh:"e.g. client, route",
+ saveDay:"Save day",cancel:"Cancel",clearDay:"Clear this day",confirmClear:"Clear everything for this day?",yes:"Yes, clear",no:"No",dayCleared:"Day cleared",daySaved:d=>`Day ${d} saved`,
+ uploading:"Uploading photo…",uploadFail:"Photo didn't upload: ",photoOff:"Receipt photos work when you're signed in as the log's owner.",close:"Close",
+ weekendToast:"Today is a weekend. If you worked, open weekends in Month settings.",copied:"Summary copied",copyManual:"Select and copy the text:",fileReady:"File ready",
+ printTitle:"Print preview",downloadPdf:"Download PDF",includeRec:"Attach receipt photos to the PDF",pdfMaking:"Building PDF…",pdfFail:"PDF couldn't be built: ",
+ printHint:"Tap Download PDF, then choose Print, or save it to Files.",pdfNoLib:"The PDF tool didn't load. Check your connection and reopen the page.",noDownloads:"Downloads aren't available in this view. Open the page in a browser while signed in.",amt:"Amount",remove:"Remove"},
+fr:{brand:"Dépenses automobile",restoreFail:"Ce fichier n'est pas une sauvegarde du journal.",restored:"Sauvegarde restaurée",restore:"Restaurer une sauvegarde",backup:"Enregistrer une sauvegarde",backupNote:"Votre journal est enregistré sur ce téléphone seulement. Enregistrez une sauvegarde de temps en temps (Fichiers, Drive ou courriel) pour la protéger ou la transférer sur un nouveau téléphone.",backupTitle:"Sauvegarde",installLater:"Plus tard",installBtn:"Installer",installAndroid:"Dans Chrome, touchez ⋮ puis « Installer l'application » ou « Ajouter à l'écran d'accueil ».",installIos:"Dans Safari, touchez Partager (carré avec une flèche), puis « Sur l'écran d'accueil ».",installTitle:"Installer l'application sur votre téléphone",detailsTitle:"Renseignements du formulaire",namePh:"Prénom et nom",coPh:"ex. l'entreprise où vous travaillez",brandSub:"Journal des dépenses automobile",sCompany:"Nom de l'entreprise",devBy:"Développé par",loading:"Ouverture du journal…",savedAcct:"Enregistré dans votre compte · sur tous vos appareils",saving:"Enregistrement…",saved:"Enregistré",saveErr:"Non enregistré. Vérifiez la connexion; nouvel essai.",localOnly:"Enregistré sur ce téléphone",
+ dueLabel:"Montant dû ce mois-ci",fuel:"Essence",parking:"Stationnement",phone:"Téléphone",lease:"Location (leasing)",ot:"Temps supplémentaire",total:"Total",
+ fuelHint:"Le prix de l'essence du mois n'est pas encore saisi. Entrez-le dans la case ci-dessous.",
+ kpiKm:"Km travail",kpiDays:"Jours saisis",kpiPark:"Stationnement",logToday:"Saisir aujourd'hui",logDay:"Saisir une journée",printBtn:"Imprimer le formulaire (PDF)",csvBtn:"Exporter CSV",copyBtn:"Copier le résumé",
+ settings:"Paramètres du mois",sName:"Nom de l'employé",sFuel:"Prix de l'essence par 100 km",monthlyTitle:"Montants de fin de mois",monthlyNote:"Le bureau les communique à la fin de chaque mois.",sOt:"Temps supplémentaire",sPhone:"Téléphone, fixe ($)",sLease:"Location auto, fixe ($)",
+ sNote:"Téléphone et location sont reportés au mois suivant.",sWe:"Ouvrir samedi et dimanche (si vous avez travaillé la fin de semaine)",
+ extrasNote:"Autres montants (facultatif)",addExtra:"+ Ajouter un montant",extraPh:"Libellé",other:"Autre",days:"Jours du mois",notLogged:"Non saisi",weekendOff:"Fin de semaine · congé",
+ receipts:n=>`${n} reçu${n>1?"s":""}`,start:"Odomètre de départ",end:"Odomètre final",kmToday:"Km travail aujourd'hui",dist:"Distance parcourue",dayCol:"Jour",errOdo:"L'odomètre final doit être plus élevé que celui de départ.",
+ parkTitle:"Reçus de stationnement",addPark:"+ Ajouter un reçu",photo:"Photo",parkTotal:"Total stationnement",note:"Note (facultatif)",notePh:"ex. client, trajet",
+ saveDay:"Enregistrer la journée",cancel:"Annuler",clearDay:"Effacer cette journée",confirmClear:"Effacer toutes les données de cette journée?",yes:"Oui, effacer",no:"Non",dayCleared:"Journée effacée",daySaved:d=>`Journée du ${d} enregistrée`,
+ uploading:"Téléversement de la photo…",uploadFail:"Photo non téléversée : ",photoOff:"Les photos de reçus fonctionnent quand vous êtes connecté comme propriétaire du journal.",close:"Fermer",
+ weekendToast:"Aujourd'hui, c'est la fin de semaine. Si vous avez travaillé, ouvrez les fins de semaine dans Paramètres du mois.",copied:"Résumé copié",copyManual:"Sélectionnez et copiez le texte :",fileReady:"Fichier prêt",
+ printTitle:"Aperçu avant impression",downloadPdf:"Télécharger le PDF",includeRec:"Joindre les photos des reçus au PDF",pdfMaking:"Création du PDF…",pdfFail:"PDF non créé : ",
+ printHint:"Touchez Télécharger le PDF, puis choisissez Imprimer ou enregistrez-le dans Fichiers.",pdfNoLib:"L'outil PDF ne s'est pas chargé. Vérifiez la connexion et rouvrez la page.",noDownloads:"Le téléchargement n'est pas disponible ici. Ouvrez la page dans un navigateur en étant connecté.",amt:"Montant",remove:"Retirer"},
+fa:{brand:"هزینهٔ خودرو",restoreFail:"این فایل پشتیبان دفتر خودرو نیست.",restored:"پشتیبان بازگردانی شد",restore:"بازگردانی پشتیبان",backup:"ذخیرهٔ پشتیبان",backupNote:"دفتر شما فقط روی همین گوشی ذخیره می‌شود. هر چند وقت یک بار فایل پشتیبان بگیرید (در Files، Drive یا ایمیل) تا امن بماند یا به گوشی جدید ببریدش.",backupTitle:"پشتیبان",installLater:"بعداً",installBtn:"نصب",installAndroid:"در Chrome منوی ⋮ را بزنید، بعد «Install app» یا «Add to Home screen».",installIos:"در Safari دکمهٔ Share (مربع با فلش) را بزنید، بعد «Add to Home Screen».",installTitle:"این اپ را روی گوشی نصب کنید",detailsTitle:"مشخصات فرم",namePh:"نام و نام خانوادگی",coPh:"مثلاً شرکتی که در آن کار می‌کنید",brandSub:"Car Expense Log · هزینهٔ خودرو",sCompany:"نام شرکت",devBy:"طراحی و توسعه:",loading:"در حال باز کردن دفتر…",savedAcct:"ذخیره در حساب شما · روی همهٔ دستگاه‌ها",saving:"در حال ذخیره…",saved:"ذخیره شد",saveErr:"ذخیره نشد. اتصال را بررسی کنید؛ دوباره تلاش می‌کنم.",localOnly:"روی همین گوشی ذخیره شد",
+ dueLabel:"مبلغ قابل دریافت این ماه",fuel:"سوخت",parking:"پارکینگ",phone:"تلفن",lease:"لیز",ot:"اضافه‌کاری",total:"جمع",
+ fuelHint:"قیمت سوخت این ماه هنوز وارد نشده. در کادر پایین واردش کنید.",
+ kpiKm:"کیلومتر کاری",kpiDays:"روز ثبت‌شده",kpiPark:"پارکینگ",logToday:"ثبت امروز",logDay:"ثبت یک روز",printBtn:"چاپ فرم (PDF)",csvBtn:"خروجی CSV",copyBtn:"کپی خلاصه",
+ settings:"تنظیمات ماه",sName:"نام کارمند",sFuel:"قیمت سوخت برای هر ۱۰۰ کیلومتر",monthlyTitle:"مبالغ آخر ماه",monthlyNote:"دفتر این‌ها را آخر هر ماه اعلام می‌کند.",sOt:"اضافه‌کاری",sPhone:"تلفن، ثابت ($)",sLease:"لیز خودرو، ثابت ($)",
+ sNote:"تلفن و لیز به ماه بعد منتقل می‌شوند.",sWe:"باز کردن شنبه و یکشنبه (اگر آخر هفته کار کرده‌اید)",
+ extrasNote:"مبالغ دیگر (اختیاری)",addExtra:"+ افزودن مبلغ",extraPh:"عنوان",other:"سایر",days:"روزهای ماه",notLogged:"ثبت نشده",weekendOff:"آخر هفته · تعطیل",
+ receipts:n=>`${n} رسید`,start:"کیلومترشمار شروع",end:"کیلومترشمار پایان",kmToday:"کیلومتر کاری امروز",dist:"مسافت طی‌شده",dayCol:"روز",errOdo:"کیلومترشمار پایان باید بیشتر از شروع باشد.",
+ parkTitle:"رسیدهای پارکینگ",addPark:"+ افزودن رسید پارکینگ",photo:"عکس",parkTotal:"جمع پارکینگ",note:"یادداشت (اختیاری)",notePh:"مثلاً مشتری، مسیر",
+ saveDay:"ذخیرهٔ روز",cancel:"انصراف",clearDay:"پاک کردن این روز",confirmClear:"همهٔ اطلاعات این روز پاک شود؟",yes:"بله، پاک کن",no:"نه",dayCleared:"روز پاک شد",daySaved:d=>`روز ${d} ذخیره شد`,
+ uploading:"در حال بارگذاری عکس…",uploadFail:"عکس بارگذاری نشد: ",photoOff:"عکس رسید فقط وقتی کار می‌کند که با حساب صاحب دفتر وارد شده باشید.",close:"بستن",
+ weekendToast:"امروز آخر هفته است. اگر کار کرده‌اید، آخر هفته‌ها را در تنظیمات باز کنید.",copied:"خلاصه کپی شد",copyManual:"متن را انتخاب و کپی کنید:",fileReady:"فایل آماده شد",
+ printTitle:"پیش‌نمایش چاپ",downloadPdf:"دانلود PDF",includeRec:"پیوست عکس رسیدها به PDF",pdfMaking:"در حال ساخت PDF…",pdfFail:"PDF ساخته نشد: ",
+ printHint:"دکمهٔ دانلود PDF را بزنید و بعد Print را انتخاب کنید یا در Files ذخیره‌اش کنید. فرم چاپی به انگلیسی و فرانسه است، مثل فرم کارفرما.",pdfNoLib:"ابزار PDF بارگذاری نشد. اتصال را بررسی کنید و صفحه را دوباره باز کنید.",noDownloads:"دانلود در این نما در دسترس نیست. صفحه را در مرورگر و با حساب خودتان باز کنید.",amt:"مبلغ",remove:"حذف"}};
+const MONTHS={en:["January","February","March","April","May","June","July","August","September","October","November","December"],
+ fr:["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"],
+ fa:["ژانویه","فوریه","مارس","آوریل","مه","ژوئن","ژوئیه","اوت","سپتامبر","اکتبر","نوامبر","دسامبر"]};
+const WD={en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],fr:["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"],fa:["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"]};
+const WD_EN3=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],WD_FR3=["dim","lun","mar","mer","jeu","ven","sam"];
+let lang="en";try{const l=localStorage.getItem("carlog:lang");if(T[l])lang=l}catch(e){}
+const t=k=>T[lang][k];
+
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const money=n=>(Math.round((+n||0)*100)/100).toFixed(2);
+const toNum=v=>{if(v==null||v==="")return null;const n=parseFloat(String(v).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace("٫",".").replace(/[٬,\s]/g,""));return isNaN(n)?null:n};
+const fmtRate=n=>{n=+n||0;return Math.abs(n*100-Math.round(n*100))<1e-9?n.toFixed(2):String(+n.toFixed(4))};
+const fmtInt=n=>Number(n||0).toLocaleString("en-US");
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const now=new Date();
+let ym={y:now.getFullYear(),m:now.getMonth()};
+let state=null,db=null,uid=null,assets=null,downloads=null,mode="loading",statusKey="loading";
+const DEFAULTS={company:"",name:"",fuel:null,ot:null,phone:30,lease:500,extras:[],weekends:false};
+const CARRY=["company","name","phone","lease","extras","weekends"];
+const key=()=>`m-${ym.y}-${pad(ym.m+1)}`;
+const daysIn=()=>new Date(ym.y,ym.m+1,0).getDate();
+const isWeekend=i=>{const w=new Date(ym.y,ym.m,i).getDay();return w===0||w===6};
+const parksOf=d=>(d&&d.parks)||[];
+const parkOf=d=>parksOf(d).reduce((a,p)=>a+(toNum(p.amt)||0),0);
+const hasData=d=>!!(d&&(d.start||d.end||d.note||parksOf(d).length));
+const isOpen=i=>!isWeekend(i)||state.settings.weekends||hasData(state.days[i]);
+const workDays=()=>{let n=0;for(let i=1;i<=daysIn();i++)if(!isWeekend(i))n++;return n};
+const blank=s=>{const c={};if(s)CARRY.forEach(k=>{if(s[k]!==undefined)c[k]=s[k]});return{settings:{...DEFAULTS,...c},days:{}}};
+// older saves kept one parking amount plus a receipts list
+function normDay(d){if(!d||d.parks)return d;const parks=[],rec=[...(d.receipts||[])];
+  if(toNum(d.park))parks.push({amt:d.park,photo:rec.shift()||null});rec.forEach(r=>parks.push({amt:"",photo:r}));
+  const o={...d,parks};delete o.park;delete o.receipts;return o}
+function normState(s){for(const k in s.days)s.days[k]=normDay(s.days[k]);return s}
+
+// ---------- calc ----------
+function kmOf(d){if(!d)return 0;const a=toNum(d.start),b=toNum(d.end);return(a!=null&&b!=null&&b>=a)?b-a:0}
+function totals(){
+  const s=state.settings;let km=0,park=0,rec=0,filled=0;
+  for(const k in state.days){const d=state.days[k];km+=kmOf(d);park+=parkOf(d);rec+=parksOf(d).length;if(hasData(d))filled++}
+  const fuel=toNum(s.fuel)||0,kmAmt=km/100*fuel,ot=toNum(s.ot)||0,phone=toNum(s.phone)||0,lease=toNum(s.lease)||0;
+  const extras=(s.extras||[]).filter(e=>e.label||toNum(e.amt)).map(e=>({label:e.label||t("other"),amt:toNum(e.amt)||0}));
+  const due=kmAmt+park+ot+phone+lease+extras.reduce((a,e)=>a+e.amt,0);
+  return{km,park,rec,filled,fuel,kmAmt,ot,phone,lease,extras,due};
+}
+
+// ---------- render ----------
+function applyLang(){
+  document.body.classList.toggle("fa",lang==="fa");
+  const app=$("app");app.dir=lang==="fa"?"rtl":"ltr";app.lang=lang;
+  document.querySelectorAll("[data-t]").forEach(el=>{el.textContent=t(el.dataset.t)});
+  document.querySelectorAll("[data-tp]").forEach(el=>{el.placeholder=t(el.dataset.tp)});
+  document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.l===lang)));
+  setStatus(statusKey);
+  render();
+}
+function render(){
+  if(!state)return;
+  $("monthName").textContent=`${MONTHS[lang][ym.m]} ${ym.y}`;
+  $("coName").textContent=state.settings.company||t("brand");
+  document.querySelector(".brand small").hidden=!state.settings.company;
+  const x=totals();
+  $("due").textContent=money(x.due);
+  const rows=[[`${t("fuel")} <span class="num">(${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)})</span>`,x.kmAmt],[t("parking"),x.park],[t("phone"),x.phone],[t("lease"),x.lease],[t("ot"),x.ot]];
+  x.extras.forEach(e=>rows.push([esc(e.label),e.amt]));
+  $("break").innerHTML=rows.map(([l,v])=>`<dt>${l}</dt><dd class="num">$${money(v)}</dd>`).join("");
+  $("rateHint").hidden=!!x.fuel;
+  $("monthly").classList.toggle("need",!x.fuel);
+  $("details").classList.toggle("need",!state.settings.name);
+  $("fuelCalc").innerHTML=`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)} = <b>$${money(x.kmAmt)}</b>`;
+  $("kKm").textContent=fmtInt(x.km);
+  $("kDays").innerHTML=`${x.filled}<small style="font-size:12px;color:var(--muted)">/${workDays()}</small>`;
+  $("kPark").textContent="$"+money(x.park);
+  const isThis=ym.y===now.getFullYear()&&ym.m===now.getMonth();
+  $("todayBtn").textContent=isThis?t("logToday"):t("logDay");
+  let html="";
+  for(let i=1;i<=daysIn();i++){
+    const d=state.days[i],wd=new Date(ym.y,ym.m,i).getDay(),km=kmOf(d),p=parkOf(d),filled=hasData(d),open=isOpen(i),n=parksOf(d).length;
+    const cls=["day",filled?"filled":"empty",open?"":"off",isThis&&i===now.getDate()?"today":""].join(" ");
+    const chips=(p?`<span class="chip">${t("parking")} <span class="num">$${money(p)}</span></span>`:"")+(n?`<span class="chip">${t("receipts")(n)}</span>`:"");
+    const body=open?`<span class="c">${d&&d.start?fmtInt(toNum(d.start)):""}</span><span class="c">${d&&d.end?fmtInt(toNum(d.end)):""}</span><span class="c km">${km?fmtInt(km):""}</span>${chips?`<span class="chips">${chips}</span>`:""}`:`<span class="wtxt">${t("weekendOff")}</span>`;
+    html+=`<li><button class="${cls}" data-day="${i}"${open?"":" disabled"}><span class="d"><b>${i}</b><small>${WD[lang][wd]}</small></span>${body}</button></li>`;
+  }
+  $("days").innerHTML=`<li class="dhead" aria-hidden="true"><span>${t("dayCol")}</span><span>${t("start")}</span><span>${t("end")}</span><span>${t("dist")}</span></li>`+html;
+  if(!document.activeElement?.closest?.("#settings,#monthly,#details"))fillSettings();
+}
+function fillSettings(){
+  const s=state.settings;
+  $("sCompany").value=s.company||"";$("sName").value=s.name||"";$("sFuel").value=s.fuel??"";$("sOt").value=s.ot??"";$("sPhone").value=s.phone??"";$("sLease").value=s.lease??"";$("sWe").checked=!!s.weekends;
+  $("extras").innerHTML=(s.extras||[]).map((e,i)=>`<div class="extra"><input class="txt" data-x="${i}" data-f="label" value="${esc(e.label)}" placeholder="${esc(t("extraPh"))}"><input data-x="${i}" data-f="amt" inputmode="decimal" value="${esc(e.amt)}" placeholder="0.00"><button class="icon-btn" data-delx="${i}" aria-label="${esc(t("remove"))}">×</button></div>`).join("");
+}
+function setStatus(k){statusKey=k;const map={loading:"loading",savedAcct:"saved",saved:"saved",saving:"saving",saveErr:"error",localOnly:"saved"};$("status").dataset.s=map[k]||"loading";$("status").querySelector("span").textContent=t(k)}
+function toast(msg){const el=$("toast");el.textContent=msg;el.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>el.hidden=true,2600)}
+
+// ---------- storage ----------
+let saving=false,dirty=false,saveTimer=null;
+function scheduleSave(){dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(flush,500)}
+async function flush(){
+  if(saving||!dirty||!state)return;dirty=false;
+  const k=key(),payload=JSON.parse(JSON.stringify({...state,updated:Date.now()}));
+  if(mode!=="db"){try{localStorage.setItem("carlog:"+k,JSON.stringify(payload));localStorage.setItem("carlog:defaults",JSON.stringify(state.settings))}catch(e){}setStatus("localOnly");return}
+  saving=true;setStatus("saving");
+  try{
+    await db.doc(`data/users/${uid}/${k}`).set(payload);
+    await db.doc(`data/users/${uid}/defaults`).set({settings:payload.settings,updated:Date.now()});
+    setStatus("saved");
+  }catch(e){setStatus("saveErr");dirty=true;setTimeout(flush,4000)}
+  saving=false;if(dirty)flush();
+}
+async function loadMonth(){
+  state=null;setStatus("loading");
+  const k=key();
+  if(mode==="db"){
+    let timedOut=false;const timer=setTimeout(()=>{timedOut=true;mode="local";loadMonth()},10000);
+    try{
+      const snap=await db.doc(`data/users/${uid}/${k}`).get();
+      if(timedOut)return;
+      let s;
+      if(snap.exists){const v=snap.data();s={settings:{...DEFAULTS,...(v.settings||{})},days:v.days||{}}}
+      else{const d=await db.doc(`data/users/${uid}/defaults`).get();if(timedOut)return;s=blank(d.exists?d.data().settings:null)}
+      clearTimeout(timer);state=normState(s);setStatus("savedAcct");
+    }catch(e){clearTimeout(timer);if(timedOut)return;mode="local";return loadMonth()}
+  }else{
+    let raw=null,def=null;try{raw=JSON.parse(localStorage.getItem("carlog:"+k)||"null");def=JSON.parse(localStorage.getItem("carlog:defaults")||"null")}catch(e){}
+    state=normState(raw?{settings:{...DEFAULTS,...raw.settings},days:raw.days||{}}:blank(def));
+    setStatus("localOnly");
+  }
+  render();
+}
+
+// ---------- day sheet ----------
+function prevEnd(day){for(let i=day-1;i>=1;i--){const d=state.days[i];if(d&&d.end)return d.end}return""}
+const blobUrl=r=>(r&&(PHOTO[r.id]||r.url))||"";
+function openDay(day){
+  const cur=state.days[day]||{};
+  const draft={start:cur.start??prevEnd(day),end:cur.end??"",note:cur.note??"",parks:parksOf(cur).map(p=>({...p}))};
+  if(!draft.parks.length)draft.parks.push({amt:"",photo:null});
+  const wd=new Date(ym.y,ym.m,day).getDay(),rtl=lang==="fa";
+  const root=$("sheetRoot");
+  root.innerHTML=`<div class="sheet-bg" id="bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh" dir="${rtl?"rtl":"ltr"}" lang="${lang}">
+    <h3 id="sh"><span>${WD[lang][wd]} <span class="num">${day}</span> ${MONTHS[lang][ym.m]}</span><button class="icon-btn" id="x" aria-label="${esc(t("close"))}">×</button></h3>
+    <div class="odo-pair">
+      <label class="f">${t("start")}<input id="dStart" inputmode="numeric" value="${esc(draft.start)}" placeholder="84210"></label>
+      <label class="f">${t("end")}<input id="dEnd" inputmode="numeric" value="${esc(draft.end)}" placeholder="—"></label>
+      <div class="f">${t("dist")}<div class="distbox"><b class="num" id="dKm">0</b> km</div></div>
+    </div>
+    <div class="err" id="dErr"></div>
+    <div class="sec">${t("parkTitle")}</div>
+    <div class="parks" id="dParks"></div>
+    <button class="btn ghost" id="addPark" type="button">${t("addPark")}</button>
+    <div class="calc"><span>${t("parkTotal")}</span><span><b class="num" id="dParkTot">$0.00</b></span></div>
+    <div class="note" id="recNote">${assets?"":esc(t("photoOff"))}</div>
+    <label class="f">${t("note")}<input class="txt" id="dNote" value="${esc(draft.note)}" placeholder="${esc(t("notePh"))}"></label>
+    <div class="row"><button class="btn primary" id="dSave">${t("saveDay")}</button></div>
+    <div class="row"><button class="btn ghost" id="dCancel">${t("cancel")}</button>${state.days[day]?`<button class="btn ghost danger" id="dClear">${t("clearDay")}</button>`:""}</div>
+    <div class="row" id="confirmRow" hidden><span class="note" style="flex:1 1 100%">${t("confirmClear")}</span><button class="btn danger" id="dClearYes">${t("yes")}</button><button class="btn" id="dClearNo">${t("no")}</button></div>
+  </div></div>`;
+  const close=()=>{root.innerHTML=""};
+  const upd=()=>{
+    const a=toNum($("dStart").value),b=toNum($("dEnd").value);
+    $("dKm").textContent=(a!=null&&b!=null&&b>=a)?fmtInt(b-a):"0";
+    $("dErr").textContent=(a!=null&&b!=null&&b<a)?t("errOdo"):"";
+    $("dParkTot").textContent="$"+money(draft.parks.reduce((s,p)=>s+(toNum(p.amt)||0),0));
+  };
+  const drawParks=()=>{
+    $("dParks").innerHTML=draft.parks.map((p,i)=>`<div class="park">
+      <label class="ph${p.photo?" has":""}" aria-label="${esc(t("photo"))}">${p.photo?`<img src="${esc(blobUrl(p.photo))}" alt="" data-view="${i}">`:esc(t("photo"))}${assets&&!p.photo?`<input type="file" accept="image/*" data-file="${i}">`:""}</label>
+      <input data-amt="${i}" inputmode="decimal" value="${esc(p.amt)}" placeholder="${esc(t("amt"))} $0.00" aria-label="${esc(t("amt"))}">
+      <button class="icon-btn" data-delp="${i}" aria-label="${esc(t("remove"))}">×</button></div>`).join("");
+    upd();
+  };
+  drawParks();
+  $("dStart").oninput=upd;$("dEnd").oninput=upd;
+  $("dParks").addEventListener("input",e=>{const i=e.target.dataset.amt;if(i!=null){draft.parks[+i].amt=e.target.value;upd()}});
+  $("dParks").addEventListener("change",async e=>{const i=e.target.dataset.file;if(i==null)return;const file=e.target.files[0];if(!file)return;
+    $("recNote").textContent=t("uploading");
+    try{const r=await assets.upload(await shrink(file));draft.parks[+i].photo={id:r.id,url:r.url};$("recNote").textContent="";drawParks()}
+    catch(err){$("recNote").textContent=t("uploadFail")+((err&&(err.message||err.code))||"")}});
+  $("dParks").addEventListener("click",e=>{
+    const del=e.target.closest("[data-delp]");if(del){draft.parks.splice(+del.dataset.delp,1);drawParks();return}
+    const v=e.target.closest("[data-view]");if(v){e.preventDefault();viewImg(blobUrl(draft.parks[+v.dataset.view].photo),()=>{draft.parks[+v.dataset.view].photo=null;drawParks()})}
+  });
+  $("addPark").onclick=()=>{draft.parks.push({amt:"",photo:null});drawParks();$("dParks").lastElementChild.querySelector("[data-amt]").focus()};
+  $("x").onclick=close;$("dCancel").onclick=close;
+  $("bg").onclick=e=>{if(e.target.id==="bg")close()};
+  if($("dClear")){$("dClear").onclick=()=>{$("confirmRow").hidden=false};$("dClearNo").onclick=()=>{$("confirmRow").hidden=true};
+    $("dClearYes").onclick=()=>{delete state.days[day];scheduleSave();render();close();toast(t("dayCleared"))}}
+  $("dSave").onclick=()=>{
+    const a=toNum($("dStart").value),b=toNum($("dEnd").value);
+    if(a!=null&&b!=null&&b<a){$("dErr").textContent=t("errOdo");return}
+    const parks=draft.parks.filter(p=>toNum(p.amt)||p.photo).map(p=>({amt:String(p.amt).trim(),photo:p.photo||null}));
+    const rec={start:$("dStart").value.trim(),end:$("dEnd").value.trim(),note:$("dNote").value.trim(),parks};
+    if(!hasData(rec))delete state.days[day];else state.days[day]=rec;
+    scheduleSave();render();close();toast(t("daySaved")(day));
+  };
+  setTimeout(()=>{(draft.start?$("dEnd"):$("dStart")).focus()},50);
+}
+function viewImg(src,onRemove){
+  const h=document.createElement("div");h.className="sheet-bg";h.style.zIndex=25;
+  h.innerHTML=`<div class="sheet viewer"><img src="${esc(src)}" alt=""><div class="row"><button class="btn" data-a="close">${t("close")}</button><button class="btn danger" data-a="rm">${t("remove")}</button></div></div>`;
+  h.onclick=e=>{const a=e.target.dataset.a;if(a==="rm"){onRemove();h.remove()}else if(a==="close"||e.target===h)h.remove()};
+  document.body.appendChild(h);
+}
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const sc=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    return await new Promise(res=>c.toBlob(b=>res(b||file),"image/jpeg",.82));
+  }catch(e){return file}
+}
+
+// ---------- printable form (EN / FR like the employer form) ----------
+const BK_LOGO="data:image/png;base64,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";
+const fileBase=()=>{const c=(state.settings.company||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");return `${c?c+"_":""}Car_Expense_${MONTHS.en[ym.m]}_${ym.y}`};
+function formRows(){const out=[];for(let i=1;i<=daysIn();i++){const d=state.days[i]||{},wd=new Date(ym.y,ym.m,i).getDay();
+  out.push({i,off:!isOpen(i),label:`${WD_EN3[wd]} / ${WD_FR3[wd]} ${pad(i)}`,start:d.start?fmtInt(toNum(d.start)):"",end:d.end?fmtInt(toNum(d.end)):"",km:kmOf(d)?fmtInt(kmOf(d)):"",park:parkOf(d)?money(parkOf(d)):"",rec:parksOf(d).length||""})}return out}
+function sumLines(x){const L=[["Work kilometres / Kilomètres au travail",`${fmtInt(x.km)} km ÷ 100 × $${x.fuel.toFixed(4)}`,x.kmAmt],["Total parking / Total pour le stationnement","",x.park],["Other (phone) / Autre (téléphone)","",x.phone],["Car lease / Location (leasing)","",x.lease],["Over Time / Temps supplémentaire","",x.ot]];
+  x.extras.forEach(e=>L.push([e.label,"",e.amt]));return L}
+function previewHtml(){
+  const s=state.settings,x=totals();
+  const rows=formRows().map(r=>`<tr class="${r.off?"off":""}"><td>${esc(r.label)}</td><td>${r.off?"—":r.start}</td><td>${r.off?"":r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`).join("");
+  return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>Car Expense Log · Journal des dépenses automobile</h4>
+  <div class="meta"><div><b>Employee / Nom de l'employé:</b> ${esc(s.name)||"________"}</div><div><b>Month / Mois:</b> ${MONTHS.en[ym.m]} / ${MONTHS.fr[ym.m]} ${ym.y}</div>
+  <div><b>Fuel Cost (CAD) Price:</b> $${x.fuel.toFixed(4)} / 100 km</div><div><b>Over Time:</b> $${money(x.ot)}</div></div>
+  <table><thead><tr><th>Date</th><th>Start odometer<small>Odomètre de départ</small></th><th>End odometer<small>Odomètre final</small></th><th>Work km<small>Total des kms (travail)</small></th><th>Parking<small>Parcomètre</small></th><th>Receipts<small>Reçus</small></th></tr></thead>
+  <tbody>${rows}<tr class="tot"><td>TOTAL</td><td></td><td></td><td>${fmtInt(x.km)}</td><td>$${money(x.park)}</td><td>${x.rec}</td></tr></tbody></table>
+  <div class="sum">${sumLines(x).map(([l,f,v])=>`<div>${esc(l)}${f?` <span style="color:#6b736f">(${f})</span>`:""}</div><div>$${money(v)}</div>`).join("")}<div class="due">AMOUNT DUE / MONTANT DÛ</div><div class="due">$${money(x.due)}</div></div><div style="margin-top:14px;color:#6b736f;font-size:8px">Developed by Alex Rajabi · Bizkonic</div></div>`;
+}
+async function imgData(src){const r=await fetch(src);const b=await r.blob();const bmp=await createImageBitmap(b);const c=document.createElement("canvas");c.width=bmp.width;c.height=bmp.height;c.getContext("2d").drawImage(bmp,0,0);return{data:c.toDataURL("image/jpeg",.85),w:bmp.width,h:bmp.height}}
+async function buildPdf(withReceipts){
+  // US/Canada Letter: 8.5 x 11 in = 612 x 792 pt, 0.5 in margins
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"pt",format:"letter",orientation:"portrait"});
+  const s=state.settings,x=totals(),M=36,W=612-2*M,ink=[20,44,43],grey=[95,104,100];
+  const font=(w,sz,c)=>{doc.setFont("helvetica",w);doc.setFontSize(sz);doc.setTextColor(...(c||ink))};
+  let y=44;
+  if(s.company){font("bold",11);doc.text(s.company,M,y);y+=20}
+  font("bold",18);doc.text("Car Expense Log",M,y);
+  font("bold",13);doc.text(`${MONTHS.en[ym.m]} ${ym.y}`,M+W,y,{align:"right"});
+  y+=15;font("normal",10.5,grey);doc.text("Journal des dépenses automobile",M,y);doc.text(`${MONTHS.fr[ym.m]} ${ym.y}`,M+W,y,{align:"right"});
+  // details box
+  y+=12;const bh=42;doc.setDrawColor(190,184,172);doc.setLineWidth(.7);doc.rect(M,y,W,bh);
+  const cell=(cx,lab,val)=>{font("normal",8.5,grey);doc.text(lab,cx,y+15);font("bold",12);doc.text(val,cx,y+32)};
+  cell(M+10,"Employee / Nom de l'employé",s.name||"");
+  cell(M+W*.47,"Fuel Cost (CAD) Price / 100 km","$"+x.fuel.toFixed(4));
+  cell(M+W*.78,"Over Time","$"+money(x.ot));
+  y+=bh+12;
+  // table
+  const cols=[{h:"Date",f:"",w:112},{h:"Start odometer",f:"Odomètre de départ",w:96},{h:"End odometer",f:"Odomètre final",w:96},{h:"Work km",f:"Total des kms (travail)",w:100},{h:"Parking",f:"Parcomètre",w:78},{h:"Receipts",f:"Reçus",w:W-482}];
+  const hh=30;doc.setFillColor(...ink);doc.rect(M,y,W,hh,"F");
+  let cx=M;cols.forEach((c,ci)=>{const right=ci>0;const tx=right?cx+c.w-6:cx+6;const o=right?{align:"right"}:{};
+    doc.setTextColor(247,244,238);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
+    if(c.f){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(c.f,tx,y+24,o)}cx+=c.w});
+  y+=hh;
+  const rows=formRows(),nOff=rows.filter(r=>r.off).length,nOn=rows.length-nOff;
+  const tableEnd=600,avail=tableEnd-y-20; // 20 = total row
+  const rh=Math.min(19,avail/(nOn+.55*nOff)),rhOff=rh*.55;
+  rows.forEach(r=>{
+    const h=r.off?rhOff:rh;
+    if(r.off){doc.setFillColor(236,233,226);doc.rect(M,y,W,h,"F")}
+    doc.setDrawColor(205,199,188);doc.setLineWidth(.5);doc.line(M,y+h,M+W,y+h);
+    let xx=M;
+    if(r.off){font("normal",7,[140,145,142]);doc.text(r.label,xx+6,y+h-2.6);doc.text("Weekend / Fin de semaine",M+cols[0].w+6,y+h-2.6)}
+    else{const cells=[r.label,r.start,r.end,r.km,r.park?"$"+r.park:"",String(r.rec)];
+      cells.forEach((v,ci)=>{const c=cols[ci];font(ci===3?"bold":"normal",10);if(ci===0)doc.text(v,xx+6,y+h/2+3.5);else if(v)doc.text(v,xx+c.w-6,y+h/2+3.5,{align:"right"});xx+=c.w})}
+    y+=h;
+  });
+  doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);
+  {let xx=M;font("bold",10.5);["TOTAL","","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)].forEach((v,ci)=>{const c=cols[ci];if(ci===0)doc.text(v,xx+6,y+14);else if(v)doc.text(v,xx+c.w-6,y+14,{align:"right"});xx+=c.w})}
+  y+=20;
+  // summary (right half)
+  y+=18;const sx=M+W*.40;
+  sumLines(x).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5);doc.text("$"+money(v),M+W,y,{align:"right"});
+    if(f){font("normal",8.5,grey);doc.text(f,sx,y+11);y+=25}else y+=16});
+  doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(sx,y-8,M+W,y-8);
+  font("bold",13);doc.text("AMOUNT DUE / MONTANT DÛ",sx,y+9);doc.text("$"+money(x.due),M+W,y+9,{align:"right"});
+  // footer
+  try{doc.addImage(BK_LOGO,"PNG",M,758,14,14)}catch(e){}
+  font("normal",7.5,grey);doc.text(`Developed by Alex Rajabi · Bizkonic · ${now.toISOString().slice(0,10)}`,M+20,768);
+  // receipts
+  if(withReceipts){
+    for(let i=1;i<=daysIn();i++){for(const p of parksOf(state.days[i])){if(!p.photo)continue;
+      try{const im=await imgData(blobUrl(p.photo));doc.addPage("letter","portrait");font("bold",12);
+        doc.text(`Parking receipt / Reçu de stationnement · ${ym.y}-${pad(ym.m+1)}-${pad(i)} · $${money(toNum(p.amt))}`,M,50);
+        const mh=792-2*M-40,sc=Math.min(W/im.w,mh/im.h);doc.addImage(im.data,"JPEG",M,66,im.w*sc,im.h*sc)}catch(e){}}}
+  }
+  return doc.output("blob");
+}
+function openPrint(){
+  const rtl=lang==="fa",hasPhotos=Object.values(state.days).some(d=>parksOf(d).some(p=>p.photo));
+  const h=document.createElement("div");h.className="sheet-bg";
+  h.innerHTML=`<div class="sheet" dir="${rtl?"rtl":"ltr"}" lang="${lang}"><h3><span>${t("printTitle")}</span><button class="icon-btn" data-a="close" aria-label="${esc(t("close"))}">×</button></h3>
+   <div class="paper-scroll">${previewHtml()}</div>
+   ${hasPhotos?`<label class="check"><input type="checkbox" id="pRec" checked><span>${t("includeRec")}</span></label>`:""}
+   <div class="note" id="pNote">${t("printHint")}</div>
+   <div class="row"><button class="btn primary" data-a="pdf">${t("downloadPdf")}</button></div></div>`;
+  h.onclick=async e=>{const a=e.target.dataset.a;
+    if(a==="close"||e.target===h)return h.remove();
+    if(a!=="pdf")return;
+    const note=h.querySelector("#pNote");
+    if(!window.jspdf){note.textContent=t("pdfNoLib");return}
+    if(!downloads){note.textContent=t("noDownloads");return}
+    e.target.disabled=true;note.textContent=t("pdfMaking");
+    try{const blob=await buildPdf(!!h.querySelector("#pRec")?.checked);await downloads.save({filename:fileBase()+".pdf",data:blob});note.textContent=t("fileReady")}
+    catch(err){note.textContent=err&&err.code==="declined"?t("printHint"):t("pdfFail")+((err&&(err.message||err.code))||"")}
+    e.target.disabled=false};
+  document.body.appendChild(h);
+}
+
+// ---------- CSV / summary ----------
+function csv(){
+  const s=state.settings,x=totals(),q=v=>`"${String(v??"").replace(/"/g,'""')}"`,L=[];
+  if(s.company)L.push([q("Entreprise"),q(s.company)].join(","));
+  L.push([q("Nom de l'employé"),q(s.name)].join(","));
+  L.push([q("Mois et la Date"),q(`${ym.y}-${pad(ym.m+1)}`)].join(","));
+  L.push([q("Fuel Cost (CAD) Price"),q(x.fuel.toFixed(4))].join(","));
+  L.push([q("Over Time"),q(money(x.ot))].join(","));L.push("");
+  L.push(["Date","Odomètre de départ","Odomètre final","Total des kms (travail)","Parcomètre","Reçus","Note"].map(q).join(","));
+  for(let i=1;i<=daysIn();i++){if(!isOpen(i))continue;const d=state.days[i]||{};L.push([`${ym.y}-${pad(ym.m+1)}-${pad(i)}`,d.start||"",d.end||"",kmOf(d)||"",parkOf(d)?money(parkOf(d)):"",parksOf(d).length||"",d.note||""].map(q).join(","))}
+  L.push(["TOTAL","","",x.km,money(x.park),x.rec,""].map(q).join(","));L.push("");
+  sumLines(x).forEach(([l,,v])=>L.push([q(l),q(money(v))].join(",")));
+  L.push([q("MONTANT DÛ"),q(money(x.due))].join(","));
+  return "﻿"+L.join("\r\n");
+}
+function summaryText(){const s=state.settings,x=totals();
+  return [`${s.company?s.company+" · ":""}Car Expense Log — ${MONTHS.en[ym.m]} ${ym.y}`,s.name?`Employee / Nom: ${s.name}`:null,...sumLines(x).map(([l,f,v])=>`${l}: $${money(v)}${f?` (${f})`:""}`),`AMOUNT DUE / MONTANT DÛ: $${money(x.due)}`].filter(Boolean).join("\n")}
+function viewText(txt){const h=document.createElement("div");h.className="sheet-bg";
+  h.innerHTML=`<div class="sheet"><div class="note">${t("copyManual")}</div><textarea style="width:100%;min-height:220px;font:13px var(--f-ui);direction:ltr;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:10px">${esc(txt)}</textarea><button class="btn">${t("close")}</button></div>`;
+  h.querySelector("button").onclick=()=>h.remove();document.body.appendChild(h);const ta=h.querySelector("textarea");ta.focus();ta.select()}
+
+// ---------- events ----------
+document.querySelector(".langs").onclick=e=>{const b=e.target.closest("[data-l]");if(!b)return;lang=b.dataset.l;try{localStorage.setItem("carlog:lang",lang)}catch(err){}applyLang();showInstall()};
+$("days").onclick=e=>{const b=e.target.closest("[data-day]");if(b&&!b.disabled)openDay(+b.dataset.day)};
+$("todayBtn").onclick=()=>{const isThis=ym.y===now.getFullYear()&&ym.m===now.getMonth();
+  if(isThis){if(isOpen(now.getDate()))return openDay(now.getDate());return toast(t("weekendToast"))}
+  for(let i=1;i<=daysIn();i++)if(isOpen(i)&&!state.days[i])return openDay(i);for(let i=1;i<=daysIn();i++)if(isOpen(i))return openDay(i)};
+async function flushNow(){clearTimeout(saveTimer);await flush();let n=0;while(saving&&n++<50)await new Promise(r=>setTimeout(r,100))}
+$("prev").onclick=async()=>{await flushNow();ym=ym.m===0?{y:ym.y-1,m:11}:{y:ym.y,m:ym.m-1};loadMonth()};
+$("next").onclick=async()=>{await flushNow();ym=ym.m===11?{y:ym.y+1,m:0}:{y:ym.y,m:ym.m+1};loadMonth()};
+const onSet=e=>{if(!state)return;
+  const s=state.settings,el=e.target,map={sCompany:"company",sName:"name",sFuel:"fuel",sOt:"ot",sPhone:"phone",sLease:"lease"};
+  if(map[el.id])s[map[el.id]]=el.value;else if(el.id==="sWe")s.weekends=el.checked;else if(el.dataset.x!=null)s.extras[+el.dataset.x][el.dataset.f]=el.value;
+  scheduleSave();render()};
+$("settings").addEventListener("input",onSet);$("monthly").addEventListener("input",onSet);$("details").addEventListener("input",onSet);
+$("settings").addEventListener("click",e=>{const d=e.target.closest("[data-delx]");if(d){state.settings.extras.splice(+d.dataset.delx,1);scheduleSave();fillSettings();render()}});
+$("addExtra").onclick=()=>{state.settings.extras=state.settings.extras||[];state.settings.extras.push({label:"",amt:""});fillSettings();scheduleSave();$("extras").lastElementChild?.querySelector("input")?.focus()};
+$("printBtn").onclick=openPrint;
+$("copyBtn").onclick=()=>{const txt=summaryText();try{navigator.clipboard.writeText(txt).then(()=>toast(t("copied")),()=>viewText(txt))}catch(e){viewText(txt)}};
+$("csvBtn").onclick=async()=>{if(!downloads)return viewText(csv().slice(1));
+  try{await downloads.save({filename:fileBase()+".csv",data:new Blob([csv()],{type:"text/csv;charset=utf-8"})});toast(t("fileReady"))}
+  catch(e){if(e&&e.code==="declined")return;viewText(csv().slice(1))}};
+window.addEventListener("pagehide",()=>{clearTimeout(saveTimer);flush()});
+
+// ---------- on-device storage ----------
+const PHOTO={};
+const idb=(()=>{let p;return()=>p||(p=new Promise((res,rej)=>{const r=indexedDB.open("car-expense",1);r.onupgradeneeded=()=>r.result.createObjectStore("photos");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}))})();
+async function idbPut(id,blob){const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction("photos","readwrite");tx.objectStore("photos").put(blob,id);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function idbAll(){const d=await idb();return new Promise((res,rej)=>{const out={};const rq=d.transaction("photos").objectStore("photos").openCursor();rq.onsuccess=()=>{const c=rq.result;if(c){out[c.key]=c.value;c.continue()}else res(out)};rq.onerror=()=>rej(rq.error)})}
+const localAssets={upload:async blob=>{const id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await idbPut(id,blob);PHOTO[id]=URL.createObjectURL(blob);return{id,url:""}}};
+const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+async function saveFile({filename,data}){
+  const blob=data instanceof Blob?data:new Blob([data]);
+  if(mobile&&navigator.canShare){try{const f=new File([blob],filename,{type:blob.type||"application/octet-stream"});
+    if(navigator.canShare({files:[f]})){await navigator.share({files:[f]});return{status:"saved"}}}catch(e){if(e&&e.name==="AbortError")throw{code:"declined"}}}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);return{status:"saved"};
+}
+const blobToData=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsDataURL(b)});
+
+// ---------- backup / restore ----------
+$("bkBtn").onclick=async()=>{
+  await flushNow();
+  const months={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("carlog:m-"))try{months[k.slice(7)]=JSON.parse(localStorage.getItem(k))}catch(e){}}
+  let defaults=null;try{defaults=JSON.parse(localStorage.getItem("carlog:defaults"))}catch(e){}
+  const all=await idbAll().catch(()=>({})),photos={};
+  for(const m of Object.values(months))for(const d of Object.values(m.days||{}))for(const p of (d.parks||[]))if(p.photo&&all[p.photo.id]&&!photos[p.photo.id])photos[p.photo.id]=await blobToData(all[p.photo.id]);
+  const data=JSON.stringify({app:"car-expense",version:1,saved:new Date().toISOString(),months,defaults,photos});
+  try{await saveFile({filename:`Car_Expense_backup_${new Date().toISOString().slice(0,10)}.json`,data:new Blob([data],{type:"application/json"})});toast(t("fileReady"))}catch(e){}
+};
+$("rsFile").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const b=JSON.parse(await f.text());if(!b||b.app!=="car-expense"||!b.months)throw 0;
+    for(const [k,v] of Object.entries(b.months))localStorage.setItem("carlog:"+k,JSON.stringify(v));
+    if(b.defaults)localStorage.setItem("carlog:defaults",JSON.stringify(b.defaults));
+    for(const [id,url] of Object.entries(b.photos||{})){const blob=await (await fetch(url)).blob();await idbPut(id,blob);PHOTO[id]=URL.createObjectURL(blob)}
+    await loadMonth();toast(t("restored"));
+  }catch(err){toast(t("restoreFail"))}};
+
+// ---------- install ----------
+let deferredPrompt=null;
+const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+function showInstall(){if(standalone)return;let off=false;try{off=localStorage.getItem("carlog:installHide")==="1"}catch(e){}if(off)return;
+  const ios=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  $("installHow").textContent=t(ios?"installIos":"installAndroid");$("installBtn").hidden=!deferredPrompt;$("install").hidden=false}
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;showInstall()});
+addEventListener("appinstalled",()=>{$("install").hidden=true});
+$("installBtn").onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();try{await deferredPrompt.userChoice}catch(e){}deferredPrompt=null;$("install").hidden=true};
+$("installX").onclick=()=>{$("install").hidden=true;try{localStorage.setItem("carlog:installHide","1")}catch(e){}};
+
+// ---------- boot ----------
+state=blank();applyLang();setStatus("loading");showInstall();
+(async()=>{
+  assets=localAssets;downloads={save:saveFile};mode="local";
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  try{const all=await idbAll();for(const [id,b] of Object.entries(all))PHOTO[id]=URL.createObjectURL(b)}catch(e){}
+  await loadMonth();
+})();
+if("serviceWorker" in navigator)addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})});
+})();
+</script>
+
+</body>
+</html>
