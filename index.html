@@ -199,6 +199,37 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .toast{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--slab);color:var(--slab-fg);padding:10px 16px;border-radius:12px;z-index:40;font-size:14px;max-width:calc(100% - 32px)}
 .viewer img{width:100%;border-radius:12px}
 
+/* preview: phone-friendly, same look as the day list */
+.pv{display:flex;flex-direction:column;gap:12px;font-family:var(--f-ui)}
+.pv-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.pv-co{font-size:12px;font-weight:700;color:var(--muted)}
+.pv-title{font-size:17px;font-weight:700;line-height:1.2}
+.pv-month{font-size:14px;font-weight:700;white-space:nowrap}
+.pv-meta{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.pv-meta div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.pv-meta span{font-size:10.5px;color:var(--muted);line-height:1.25}
+.pv-meta b{font-size:14px}
+.pv-table{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-variant-numeric:tabular-nums}
+.pv-row{display:grid;grid-template-columns:60px 1fr 1fr .7fr .9fr;gap:6px;align-items:center;padding:7px 10px;background:var(--work);border-bottom:1px solid var(--line);font-size:13px}
+.pv-row>span:not(:first-child){text-align:right}
+.pv-row:last-child{border-bottom:0}
+.pv-th{background:var(--surface);font-size:10.5px;font-weight:700;color:var(--muted);line-height:1.2;align-items:end}
+.pv-row.off{background:var(--offday);padding-block:3px;font-size:11.5px;color:var(--muted)}
+.pv-row.off .lab{grid-column:2/-1;text-align:left!important}
+.pv-d{display:grid;grid-template-columns:34px 20px}
+.pv-d i{font-style:normal}.pv-d b{font-weight:500;text-align:right}
+.pv-row .km{color:var(--out);font-weight:700}
+.pv-row .mo{color:var(--money);font-weight:700}
+.pv-row sup{color:var(--muted);font-weight:500;font-size:9px;margin-left:2px}
+.pv-row.tot{background:var(--surface);font-weight:700;border-top:2px solid var(--fg)}
+.pv-sum{display:flex;flex-direction:column;gap:6px}
+.pv-line{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.pv-line span{display:flex;flex-direction:column}
+.pv-line small{font-size:11px;color:var(--muted)}
+.pv-line b{color:var(--money)}
+.pv-line.due{border-top:2px solid var(--out);padding-top:8px;margin-top:4px;font-size:17px;font-weight:700;color:var(--out)}
+.pv-line.due b{color:var(--out);font-size:19px}
+.pv-foot{font-size:11px;color:var(--muted)}
 /* print preview: a sheet of paper, always light, mirrors the PDF */
 .paper-scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line);background:var(--paper-off)}
 .paper{background:var(--paper);color:var(--paper-fg);width:600px;margin:12px;padding:20px;font-family:"Manrope",Arial,sans-serif;font-size:10px;line-height:1.3;direction:ltr;box-shadow:0 1px 4px rgba(0,0,0,.12)}
@@ -618,13 +649,22 @@ const offLabel=(g,L)=>g.items[0].label+" · "+L[g.items[0].reason];
 function sumLines(x,L){L=L||PT[pl()];const R=[[L.kmLine,`${fmtInt(x.km)} km ÷ 100 × $${fmtRate(x.fuel)}`,x.kmAmt],[L.parkLine,"",x.park],[L.phone,"",x.phone],[L.lease,"",x.lease],[L.otLine+(state.settings.otNote?` (${state.settings.otNote})`:""),"",x.ot]];
   x.extras.forEach(e=>R.push([e.label,"",e.amt]));return R}
 function previewHtml(){
+  // Phone-friendly preview in the app's own style; same content as the PDF.
   const s=state.settings,x=totals(),k=pl(),L=PT[k];
-  const rows=groupRows(formRows(L)).map(g=>{const r=g.items[0];return g.off?`<tr class="off"><td><span class="wdn">${r.wdn}</span><span class="dn">${r.dn}</span></td><td colspan="5">${L[r.reason]}</td></tr>`:`<tr><td><span class="wdn">${r.wdn}</span><span class="dn">${r.dn}</span></td><td>${r.start}</td><td>${r.end}</td><td>${r.km}</td><td>${r.park?"$"+r.park:""}</td><td>${r.rec}</td></tr>`}).join("");
-  return `<div class="paper">${s.company?`<div style="font-size:12px;font-weight:700;letter-spacing:.04em">${esc(s.company)}</div>`:""}<h4>${L.title} · ${MONTHS[k][ym.m]} ${ym.y}</h4>
-  <div class="meta"><div><b>${L.emp}:</b> ${esc(s.name)||"________"}</div><div><b>${L.fuel}:</b> $${fmtRate(x.fuel)}</div><div><b>${L.ot}:</b> $${money(x.ot)}</div></div>
-  <table><thead><tr><th>${L.date}</th><th>${L.start}</th><th>${L.end}</th><th>${L.km}</th><th>${L.park}</th><th>${L.rec}</th></tr></thead>
-  <tbody>${rows}<tr class="tot"><td>${L.total}</td><td></td><td></td><td>${fmtInt(x.km)}</td><td>$${money(x.park)}</td><td>${x.rec}</td></tr></tbody></table>
-  <div class="sum">${sumLines(x,L).map(([l,f,v])=>`<div>${esc(l)}${f?` <span style="color:#6b736f">(${f})</span>`:""}</div><div>$${money(v)}</div>`).join("")}<div class="due">${L.due}</div><div class="due">$${money(x.due)}</div></div><div style="margin-top:14px;color:#6b736f;font-size:8px">${L.dev} Alex Rajabi</div></div>`;
+  const rows=formRows(L).map(r=>{const d=`<span class="pv-d"><i>${r.wdn}</i><b>${r.dn}</b></span>`;
+    return r.off?`<div class="pv-row off">${d}<span class="lab">${L[r.reason]}</span></div>`
+      :`<div class="pv-row">${d}<span>${r.start}</span><span>${r.end}</span><span class="km">${r.km}</span><span class="mo">${r.park?"$"+r.park:""}${r.rec?`<sup>${r.rec}</sup>`:""}</span></div>`}).join("");
+  return `<div class="pv">
+  <div class="pv-head"><div>${s.company?`<div class="pv-co">${esc(s.company)}</div>`:""}<div class="pv-title">${L.title}</div></div><div class="pv-month">${MONTHS[k][ym.m]} ${ym.y}</div></div>
+  <div class="pv-meta"><div><span>${L.emp}</span><b>${esc(s.name)||"—"}</b></div><div><span>${L.fuel}</span><b class="num">$${fmtRate(x.fuel)}</b></div><div><span>${L.ot}</span><b class="num">$${money(x.ot)}</b></div></div>
+  <div class="pv-table">
+   <div class="pv-row pv-th"><span>${L.date}</span><span>${L.start}</span><span>${L.end}</span><span>${L.km}</span><span>${L.park}</span></div>
+   ${rows}
+   <div class="pv-row tot"><span>${L.total}</span><span></span><span></span><span class="km">${fmtInt(x.km)}</span><span class="mo">$${money(x.park)}${x.rec?`<sup>${x.rec}</sup>`:""}</span></div>
+  </div>
+  <div class="pv-sum">${sumLines(x,L).map(([l,f,v])=>`<div class="pv-line"><span>${esc(l)}${f?`<small>${f}</small>`:""}</span><b class="num">$${money(v)}</b></div>`).join("")}
+   <div class="pv-line due"><span>${L.due}</span><b class="num">$${money(x.due)}</b></div></div>
+  <div class="pv-foot">${L.dev} Alex Rajabi</div></div>`;
 }
 async function imgData(src){const r=await fetch(src);const b=await r.blob();const bmp=await createImageBitmap(b);const c=document.createElement("canvas");c.width=bmp.width;c.height=bmp.height;c.getContext("2d").drawImage(bmp,0,0);return{data:c.toDataURL("image/jpeg",.85),w:bmp.width,h:bmp.height}}
 async function buildPdf(withReceipts){
@@ -692,7 +732,7 @@ function openPrint(){
   const rtl=lang==="fa",hasPhotos=Object.values(state.days).some(d=>parksOf(d).some(p=>p.photo));
   const h=document.createElement("div");h.className="sheet-bg";
   h.innerHTML=`<div class="sheet" dir="${rtl?"rtl":"ltr"}" lang="${lang}"><h3><span>${t("printTitle")}</span><button class="icon-btn" data-a="close" aria-label="${esc(t("close"))}">×</button></h3>
-   <div class="paper-scroll">${previewHtml()}</div>
+   ${previewHtml()}
    ${hasPhotos?`<label class="check"><input type="checkbox" id="pRec" checked><span>${t("includeRec")}</span></label>`:""}
    <div class="note" id="pNote">${t("printHint")}</div>
    <div class="row"><button class="btn primary" data-a="pdf">${t("downloadPdf")}</button></div></div>`;
