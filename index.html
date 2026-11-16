@@ -89,12 +89,10 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 .ico{width:22px;height:22px;vertical-align:-5px;margin-inline:3px;fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .dots{color:var(--accent);font-size:20px;margin-inline:3px}
 .linkbtn{background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;padding:4px;align-self:center}
-.pointer{position:fixed;left:47.4%;transform:translateX(-50%);bottom:calc(4px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none}
-.pointer span{background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:7px 14px;font-weight:700;font-size:14px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25)}
-.pointer svg{color:var(--accent);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25))}
-.pointer svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.pointer{position:fixed;left:47.3%;transform:translateX(calc(-100% + 24px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(0,0,0,.25);white-space:nowrap}
+.pointer svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;flex:none}
 @media (orientation:landscape){.pointer{display:none}}
-@media (prefers-reduced-motion:no-preference){.pointer{animation:bob 1.2s ease-in-out infinite}@keyframes bob{50%{transform:translate(-50%,6px)}}}
+@media (prefers-reduced-motion:no-preference){.pointer{animation:bob 1.2s ease-in-out infinite}@keyframes bob{50%{transform:translate(calc(-100% + 24px),6px)}}}
 .monthly{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
 #details.need .f:first-of-type input{border-color:var(--accent)}
 .monthly.need{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
