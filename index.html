@@ -690,7 +690,7 @@ async function buildPdf(withReceipts){
   y+=bh+12;
   // table
   const cols=[{h:L.date,f:"",w:86},{h:L.start,f:"",w:108},{h:L.end,f:"",w:104},{h:L.km,f:"",w:120},{h:L.park,f:"",w:70},{h:L.rec,f:"",w:W-488}];
-  const hh=30;doc.setFillColor(226,229,231);doc.rect(M,y,W,hh,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);doc.line(M,y+hh,M+W,y+hh);
+  const hh=30,yT=y;doc.setFillColor(226,229,231);doc.rect(M,y,W,hh,"F");doc.setDrawColor(...ink);doc.setLineWidth(1.4);doc.line(M,y,M+W,y);doc.line(M,y+hh,M+W,y+hh);
   let cx=M;cols.forEach((c,ci)=>{const right=ci>0;const tx=right?cx+c.w-6:cx+6;const o=right?{align:"right"}:{};
     doc.setTextColor(...ink);doc.setFont("helvetica","bold");doc.setFontSize(9.5);doc.text(c.h,tx,y+(c.f?13:19),o);
     if(c.f){doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.text(c.f,tx,y+24,o)}cx+=c.w});
@@ -714,6 +714,10 @@ async function buildPdf(withReceipts){
   {let xx=M;const tv=[L.total,"","",fmtInt(x.km)+" km","$"+money(x.park),String(x.rec)],tc=[ink,ink,ink,OUT,MONEY,grey];
    tv.forEach((v,ci)=>{const c=cols[ci];font("bold",10.5,tc[ci]);if(ci===0)doc.text(v,xx+6,y+14.5);else if(v)doc.text(v,xx+c.w-6,y+14.5,{align:"right"});xx+=c.w})}
   y+=22;
+  // table frame: column lines, then the outer border on top
+  {const yB=y;let cx=M;doc.setDrawColor(170,172,171);doc.setLineWidth(.5);
+   cols.slice(0,-1).forEach(c=>{cx+=c.w;doc.line(cx,yT,cx,yB)});
+   doc.setDrawColor(...ink);doc.setLineWidth(1);doc.rect(M,yT,W,yB-yT)}
   // summary (right half)
   y+=18;const sx=M+W*.40;
   sumLines(x,L).forEach(([l,f,v])=>{font("normal",10);doc.text(l,sx,y);font("bold",10.5,[12,88,56]);doc.text("$"+money(v),M+W,y,{align:"right"});
