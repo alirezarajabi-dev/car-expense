@@ -427,9 +427,13 @@ const t=k=>T[lang][k];
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,"0");
 const money=n=>(Math.round((+n||0)*100)/100).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const toNum=v=>{if(v==null||v==="")return null;const n=parseFloat(String(v).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace("٫",".").replace(/[٬,\s]/g,""));return isNaN(n)?null:n};
+const toNum=v=>{if(v==null||v==="")return null;
+  let t=String(v).trim().replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/٫/g,".").replace(/[٬\s  $]/g,"");
+  if(t.includes(",")&&t.includes("."))t=t.lastIndexOf(",")>t.lastIndexOf(".")?t.replace(/\./g,"").replace(",","."):t.replace(/,/g,"");
+  else if(t.includes(","))t=/^\d{1,3}(,\d{3})+$/.test(t)?t.replace(/,/g,""):t.replace(",",".");   // 84,210 = thousands; 12,50 = decimal
+  const n=parseFloat(t);return isNaN(n)?null:n};
 const fmtRate=n=>{n=+n||0;return Math.abs(n*100-Math.round(n*100))<1e-9?n.toFixed(2):String(+n.toFixed(4))};
-const fmtInt=n=>Number(n||0).toLocaleString("en-US");
+const fmtInt=n=>Number(n||0).toLocaleString("en-US",{maximumFractionDigits:1});
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 const now=new Date();
@@ -456,7 +460,7 @@ function normDay(d){if(!d||d.parks)return d;const parks=[],rec=[...(d.receipts||
 function normState(s){for(const k in s.days)s.days[k]=normDay(s.days[k]);return s}
 
 // ---------- calc ----------
-function kmOf(d){if(!d)return 0;const a=toNum(d.start),b=toNum(d.end);return(a!=null&&b!=null&&b>=a)?b-a:0}
+function kmOf(d){if(!d)return 0;const a=toNum(d.start),b=toNum(d.end);return(a!=null&&b!=null&&b>=a)?Math.round(b-a):0}
 function totals(){
   const s=state.settings;let km=0,park=0,rec=0,filled=0;
   for(const k in state.days){const d=state.days[k];km+=kmOf(d);park+=parkOf(d);rec+=recOf(d);if(hasData(d))filled++}
@@ -550,11 +554,18 @@ async function loadMonth(){
     state=normState(raw?{settings:{...DEFAULTS,...raw.settings},days:raw.days||{}}:blank(def));
     setStatus("localOnly");
   }
+  await loadPrevEnd();
   render();
+}
+async function loadPrevEnd(){
+  prevMonthEnd="";const pm=ym.m===0?{y:ym.y-1,m:11}:{y:ym.y,m:ym.m-1},k=`m-${pm.y}-${pad(pm.m+1)}`;let v=null;
+  try{if(mode==="db"){const sn=await db.doc(`data/users/${uid}/${k}`).get();v=sn.exists?sn.data():null}else v=JSON.parse(localStorage.getItem("carlog:"+k)||"null")}catch(e){}
+  if(v&&v.days)for(let i=31;i>=1;i--){const d=v.days[i];if(d&&d.end){prevMonthEnd=String(d.end);break}}
 }
 
 // ---------- day sheet ----------
-function prevEnd(day){for(let i=day-1;i>=1;i--){const d=state.days[i];if(d&&d.end)return d.end}return""}
+let prevMonthEnd="";
+function prevEnd(day){for(let i=day-1;i>=1;i--){const d=state.days[i];if(d&&d.end)return d.end}return prevMonthEnd}
 const blobUrl=r=>(r&&(PHOTO[r.id]||r.url))||"";
 function openDay(day){
   if(isOffDay(day)){const wd0=new Date(ym.y,ym.m,day).getDay(),root0=$("sheetRoot");
@@ -565,7 +576,7 @@ function openDay(day){
     const close0=()=>{root0.innerHTML=""};$("x").onclick=close0;$("bg").onclick=e=>{if(e.target.id==="bg")close0()};
     $("dOn").onclick=()=>{delete state.days[day];scheduleSave();render();openDay(day)};return}
   const cur=state.days[day]||{};
-  const draft={start:cur.start??prevEnd(day),end:cur.end??"",note:cur.note??"",park:parkOf(cur)?String(cur.park??parkOf(cur)):"",rec:recOf(cur),photos:photosOf(cur).map(x=>({...x}))};
+  const draft={start:cur.start||prevEnd(day),end:cur.end??"",note:cur.note??"",park:parkOf(cur)?String(cur.park??parkOf(cur)):"",rec:recOf(cur),photos:photosOf(cur).map(x=>({...x}))};
   const wd=new Date(ym.y,ym.m,day).getDay(),rtl=lang==="fa";
   const root=$("sheetRoot");
   root.innerHTML=`<div class="sheet-bg" id="bg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sh" dir="${rtl?"rtl":"ltr"}" lang="${lang}">
@@ -591,7 +602,7 @@ function openDay(day){
   const close=()=>{root.innerHTML=""};
   const upd=()=>{
     const a=toNum($("dStart").value),b=toNum($("dEnd").value);
-    $("dKm").textContent=(a!=null&&b!=null&&b>=a)?fmtInt(b-a):"0";
+    $("dKm").textContent=(a!=null&&b!=null&&b>=a)?fmtInt(Math.round(b-a)):"0";
     $("dErr").textContent=(a!=null&&b!=null&&b<a)?t("errOdo"):"";
   };
   upd();
