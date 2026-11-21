@@ -267,6 +267,13 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 .paper .sum{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin-top:10px;margin-inline-start:45%}
 .paper .sum .due{font-family:inherit;font-size:12px;font-weight:700;border-top:2px solid #142c2b;padding-top:3px}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+/* summary box: amounts in soft yellow, labels in plain white */
+.slab #due{color:#F2C94C}
+.slab .break dd{color:#F2C94C}
+.slab .break dt{color:#F2EEE4}
+/* input fields: copper border, glow on the field being typed in */
+input:not([type="checkbox"]){border:1.5px solid color-mix(in srgb,var(--accent) 55%,var(--line))}
+input:not([type="checkbox"]):focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent);outline:none}
 </style>
 </head>
 <body>
@@ -367,7 +374,7 @@ div.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
   <footer class="credit">
     <div class="devrow"><img class="bkicon" src="data:image/png;base64,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" alt="Bizkonic" width="28" height="28"><span><span data-t="devBy"></span> <b>Alex Rajabi</b></span></div>
     <a href="https://bizkonic.com/" target="_blank" rel="noopener">bizkonic.com</a>
-    <small class="ver" id="appVer">v35</small>
+    <small class="ver" id="appVer">v36</small>
   </footer>
 </div>
 
